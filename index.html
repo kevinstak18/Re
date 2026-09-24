@@ -3,1497 +3,3012 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#f6f8fc" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#202124" media="(prefers-color-scheme: dark)">
+
+<meta name="theme-color" content="#f6f8fc">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Text Reader">
-<title>Text Reader</title>
-<style>
-  :root {
-    --bg: #f6f8fc;
-    --card: #ffffff;
-    --text: #1f1f1f;
-    --subtext: #5f6368;
-    --primary: #1a73e8;
-    --primary-hover: #1765cc;
-    --danger: #ea4335;
-    --success: #34a853;
-    --warning: #fbbc04;
-    --border: #e0e3e7;
-    --input-bg: #f1f3f4;
-    --shadow: 0 1px 3px rgba(60,64,67,.15), 0 4px 12px rgba(60,64,67,.08);
-    --slider-track: #dadce0;
-    --radius: 16px;
-    --radius-sm: 12px;
-  }
-  body.dark {
-    --bg: #202124;
-    --card: #292a2d;
-    --text: #e8eaed;
-    --subtext: #9aa0a6;
-    --primary: #8ab4f8;
-    --primary-hover: #aecbfa;
-    --danger: #f28b82;
-    --success: #81c995;
-    --warning: #fdd663;
-    --border: #3c4043;
-    --input-bg: #35363a;
-    --shadow: 0 1px 3px rgba(0,0,0,.4), 0 4px 12px rgba(0,0,0,.3);
-    --slider-track: #5f6368;
-  }
 
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    -webkit-tap-highlight-color: transparent;
+<title>Text Reader</title>
+
+<style>
+:root {
+  --bg:#f6f8fc;
+  --card:#fff;
+  --text:#1f1f1f;
+  --subtext:#5f6368;
+  --primary:#1a73e8;
+  --primary-hover:#1765cc;
+  --danger:#ea4335;
+  --success:#34a853;
+  --warning:#fbbc04;
+  --border:#e0e3e7;
+  --input-bg:#f1f3f4;
+  --shadow:0 1px 3px rgba(60,64,67,.15),0 4px 12px rgba(60,64,67,.08);
+  --slider-track:#dadce0;
+  --radius:16px;
+  --radius-sm:12px;
+}
+
+body.dark {
+  --bg:#202124;
+  --card:#292a2d;
+  --text:#e8eaed;
+  --subtext:#9aa0a6;
+  --primary:#8ab4f8;
+  --primary-hover:#aecbfa;
+  --danger:#f28b82;
+  --success:#81c995;
+  --warning:#fdd663;
+  --border:#3c4043;
+  --input-bg:#35363a;
+  --shadow:0 1px 3px rgba(0,0,0,.4),0 4px 12px rgba(0,0,0,.3);
+  --slider-track:#5f6368;
+}
+
+* {
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html {
+  -webkit-text-size-adjust:100%;
+}
+
+body {
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  min-height:100dvh;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  padding:32px 16px calc(32px + env(safe-area-inset-bottom));
+  padding-top:calc(32px + env(safe-area-inset-top));
+  transition:background .3s,color .3s;
+  overflow-x:hidden;
+}
+
+body.lang-en {
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,
+  "Helvetica Neue",Arial,sans-serif;
+}
+
+body.lang-fa {
+  font-family:Tahoma,"Segoe UI",-apple-system,"Iranian Sans",
+  "Vazirmatn",Arial,sans-serif;
+  direction:rtl;
+  text-align:right;
+}
+
+body.lang-en {
+  direction:ltr;
+  text-align:left;
+}
+
+.container {
+  width:100%;
+  max-width:640px;
+}
+
+.header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:18px;
+  gap:12px;
+}
+
+.header h1 {
+  font-size:clamp(19px,5vw,22px);
+  font-weight:600;
+  letter-spacing:.2px;
+  flex:1;
+}
+
+.header-controls {
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+.icon-btn {
+  background:var(--input-bg);
+  border:none;
+  width:44px;
+  height:44px;
+  flex-shrink:0;
+  border-radius:50%;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:background .2s,transform .2s;
+  color:var(--text);
+  font-size:14px;
+  font-weight:600;
+}
+
+.icon-btn:hover {
+  transform:rotate(20deg);
+}
+
+#helpBtn:hover {
+  transform:scale(1.1);
+}
+
+.icon-btn:active {
+  transform:scale(.92);
+}
+
+.icon-btn svg {
+  width:20px;
+  height:20px;
+}
+
+.lang-btn {
+  background:var(--input-bg);
+  border:none;
+  height:44px;
+  padding:0 16px;
+  flex-shrink:0;
+  border-radius:22px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  color:var(--text);
+  font-size:14px;
+  font-weight:600;
+  transition:background .2s,transform .1s;
+  font-family:inherit;
+}
+
+.lang-btn:hover {
+  background:var(--border);
+}
+
+.lang-btn:active {
+  transform:scale(.95);
+}
+
+.lang-btn .flag {
+  font-size:16px;
+}
+
+.card {
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:22px;
+  box-shadow:var(--shadow);
+  transition:background .3s,box-shadow .3s;
+}
+
+.test-screen {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:16px;
+  padding:40px 16px;
+  text-align:center;
+}
+
+.test-screen.hidden {
+  display:none;
+}
+
+.spinner {
+  width:44px;
+  height:44px;
+  border:4px solid var(--input-bg);
+  border-top-color:var(--primary);
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform:rotate(360deg);
   }
-  html { -webkit-text-size-adjust: 100%; }
+}
+
+.test-screen .msg {
+  font-size:15px;
+  color:var(--subtext);
+  line-height:1.7;
+  max-width:420px;
+}
+
+.test-icon {
+  font-size:44px;
+  line-height:1;
+}
+
+.main-ui {
+  display:none;
+}
+
+.main-ui.active {
+  display:block;
+  animation:fadeIn .4s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity:0;
+    transform:translateY(8px);
+  }
+  to {
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+.textarea-wrapper {
+  position:relative;
+}
+
+textarea {
+  width:100%;
+  min-height:150px;
+  padding:14px 16px 30px;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--border);
+  background:var(--input-bg);
+  color:var(--text);
+  font-size:16px;
+  line-height:1.6;
+  resize:vertical;
+  outline:none;
+  transition:border-color .2s,background .3s,color .3s;
+  -webkit-appearance:none;
+  font-family:inherit;
+  display:block;
+}
+
+textarea:focus {
+  border-color:var(--primary);
+}
+
+textarea::placeholder {
+  color:var(--subtext);
+}
+
+.resize-handle {
+  position:absolute;
+  bottom:4px;
+  right:6px;
+  width:22px;
+  height:22px;
+  cursor:ns-resize;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--subtext);
+  opacity:.55;
+  border-radius:6px;
+  touch-action:none;
+  user-select:none;
+  z-index:2;
+}
+
+body.lang-fa .resize-handle {
+  right:auto;
+  left:6px;
+}
+
+.resize-handle svg {
+  width:14px;
+  height:14px;
+}
+
+.voice-select,
+.option-item {
+  margin-top:14px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.voice-select label,
+.option-item label {
+  font-size:13px;
+  color:var(--subtext);
+  font-weight:500;
+}
+
+select {
+  width:100%;
+  padding:12px 40px 12px 14px;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--border);
+  background-color:var(--input-bg);
+  color:var(--text);
+  font-size:15px;
+  outline:none;
+  cursor:pointer;
+  appearance:none;
+  -webkit-appearance:none;
+  background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235f6368'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+  background-size:20px;
+  text-overflow:ellipsis;
+  font-family:inherit;
+  direction:ltr;
+  text-align:left;
+}
+
+body.dark select {
+  background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239aa0a6'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+}
+
+select:focus {
+  border-color:var(--primary);
+}
+
+.options-row {
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+
+.actions {
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:10px;
+  margin-top:16px;
+}
+
+button.btn {
+  padding:13px 12px;
+  border:none;
+  border-radius:24px;
+  font-size:15px;
+  font-weight:500;
+  cursor:pointer;
+  transition:background .2s,transform .1s,opacity .2s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  min-height:48px;
+  white-space:nowrap;
+  font-family:inherit;
+}
+
+button.btn:active {
+  transform:scale(.96);
+}
+
+.btn-primary {
+  background:var(--primary);
+  color:#fff;
+}
+
+body.dark .btn-primary {
+  color:#202124;
+}
+
+.btn-primary:hover {
+  background:var(--primary-hover);
+}
+
+.btn-outline {
+  background:transparent;
+  color:var(--text);
+  border:1px solid var(--border) !important;
+}
+
+.btn-outline:hover {
+  background:var(--input-bg);
+}
+
+.btn-test {
+  background:var(--success);
+  color:#fff;
+}
+
+.btn-test:hover {
+  opacity:.9;
+}
+
+.btn:disabled {
+  opacity:.5;
+  cursor:not-allowed;
+}
+
+.controls {
+  margin-top:20px;
+  display:none;
+  flex-direction:column;
+  gap:14px;
+}
+
+.controls.active {
+  display:flex;
+}
+
+.control-row {
+  display:grid;
+  grid-template-columns:90px 1fr 50px;
+  align-items:center;
+  gap:12px;
+}
+
+.control-row label {
+  font-size:13px;
+  color:var(--subtext);
+}
+
+.control-row output {
+  font-size:13px;
+  color:var(--text);
+  text-align:right;
+  font-variant-numeric:tabular-nums;
+  font-weight:500;
+}
+
+body.lang-fa .control-row output {
+  text-align:left;
+}
+
+input[type="range"] {
+  -webkit-appearance:none;
+  appearance:none;
+  width:100%;
+  height:24px;
+  background:transparent;
+  outline:none;
+  cursor:pointer;
+  margin:0;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height:4px;
+  border-radius:2px;
+  background:var(--slider-track);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance:none;
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  background:var(--primary);
+  cursor:pointer;
+  margin-top:-7px;
+}
+
+input[type="range"]::-moz-range-track {
+  height:4px;
+  border-radius:2px;
+  background:var(--slider-track);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width:18px;
+  height:18px;
+  border:none;
+  border-radius:50%;
+  background:var(--primary);
+  cursor:pointer;
+}
+
+.status {
+  margin-top:14px;
+  font-size:13px;
+  color:var(--subtext);
+  text-align:center;
+  min-height:18px;
+  line-height:1.6;
+}
+
+.status.error {
+  color:var(--danger);
+}
+
+.status.ok {
+  color:var(--success);
+}
+
+.status.warn {
+  color:var(--warning);
+}
+
+.icon {
+  width:18px;
+  height:18px;
+  flex-shrink:0;
+}
+
+/* Modal */
+
+.modal-overlay {
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  z-index:1000;
+  backdrop-filter:blur(4px);
+}
+
+.modal-overlay.active {
+  display:flex;
+}
+
+.modal-box {
+  background:var(--card);
+  color:var(--text);
+  border-radius:var(--radius);
+  box-shadow:0 8px 32px rgba(0,0,0,.3);
+  width:100%;
+  max-width:520px;
+  max-height:85vh;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+.modal-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:18px 20px;
+  border-bottom:1px solid var(--border);
+}
+
+.modal-header h2 {
+  font-size:17px;
+}
+
+.modal-close {
+  background:transparent;
+  border:none;
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  cursor:pointer;
+  color:var(--subtext);
+}
+
+.modal-body {
+  padding:20px;
+  overflow-y:auto;
+  line-height:1.7;
+  font-size:14px;
+}
+
+.modal-body h3 {
+  font-size:15px;
+  margin:18px 0 8px;
+  color:var(--primary);
+}
+
+.modal-body h3:first-child {
+  margin-top:0;
+}
+
+.modal-body p,
+.modal-body li {
+  margin:5px 0;
+}
+
+.modal-body ul,
+.modal-body ol {
+  padding-inline-start:20px;
+}
+
+@media(max-width:480px) {
 
   body {
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    min-height: 100dvh;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 32px 16px calc(32px + env(safe-area-inset-bottom));
-    padding-top: calc(32px + env(safe-area-inset-top));
-    transition: background .3s, color .3s;
-    overflow-x: hidden;
+    padding:16px 12px calc(16px + env(safe-area-inset-bottom));
+    padding-top:calc(16px + env(safe-area-inset-top));
   }
-
-  body.lang-en { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
-  body.lang-fa { font-family: Tahoma, 'Segoe UI', -apple-system, 'Iranian Sans', 'Vazirmatn', Arial, sans-serif; }
-
-  body.lang-fa { direction: rtl; text-align: right; }
-  body.lang-en { direction: ltr; text-align: left; }
-
-  .container { width: 100%; max-width: 600px; }
-
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 18px;
-    gap: 12px;
-  }
-  .header h1 {
-    font-size: clamp(19px, 5vw, 22px);
-    font-weight: 600;
-    letter-spacing: .2px;
-    flex: 1;
-  }
-  .header-controls {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-  .icon-btn {
-    background: var(--input-bg);
-    border: none;
-    width: 44px;
-    height: 44px;
-    flex-shrink: 0;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background .2s, transform .2s;
-    color: var(--text);
-    font-size: 14px;
-    font-weight: 600;
-  }
-  .icon-btn:hover { transform: rotate(20deg); }
-  .icon-btn:active { transform: scale(.92); }
-  .icon-btn svg { width: 20px; height: 20px; }
-
-  #helpBtn:hover { transform: scale(1.1); }
-
-  .lang-btn {
-    background: var(--input-bg);
-    border: none;
-    height: 44px;
-    padding: 0 16px;
-    flex-shrink: 0;
-    border-radius: 22px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    color: var(--text);
-    font-size: 14px;
-    font-weight: 600;
-    transition: background .2s, transform .1s;
-    font-family: inherit;
-  }
-  .lang-btn:hover { background: var(--border); }
-  .lang-btn:active { transform: scale(.95); }
-  .lang-btn .flag { font-size: 16px; }
 
   .card {
-    background: var(--card);
-    border-radius: var(--radius);
-    padding: 22px;
-    box-shadow: var(--shadow);
-    transition: background .3s, box-shadow .3s;
+    padding:18px 16px;
+    border-radius:14px;
   }
 
-  .test-screen {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    padding: 40px 16px;
-    text-align: center;
-  }
-  .test-screen.hidden { display: none; }
-  .spinner {
-    width: 44px; height: 44px;
-    border: 4px solid var(--input-bg);
-    border-top-color: var(--primary);
-    border-radius: 50%;
-    animation: spin .8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .test-screen .msg {
-    font-size: 15px;
-    color: var(--subtext);
-    line-height: 1.7;
-    max-width: 380px;
-  }
-  .test-icon { font-size: 44px; line-height: 1; }
-
-  .main-ui { display: none; }
-  .main-ui.active { display: block; animation: fadeIn .4s ease; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-  .textarea-wrapper {
-    position: relative;
+  .header {
+    margin-bottom:14px;
+    gap:8px;
   }
 
-  textarea {
-    width: 100%;
-    min-height: 140px;
-    padding: 14px 16px 30px 16px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-    background: var(--input-bg);
-    color: var(--text);
-    font-size: 16px;
-    line-height: 1.6;
-    resize: vertical;
-    outline: none;
-    transition: border-color .2s, background .3s, color .3s;
-    -webkit-appearance: none;
-    font-family: inherit;
-    display: block;
+  .icon-btn {
+    width:40px;
+    height:40px;
   }
-  textarea:focus { border-color: var(--primary); }
-  textarea::placeholder { color: var(--subtext); }
-  body.lang-en textarea { direction: ltr; text-align: left; }
 
-  .resize-handle {
-    position: absolute;
-    bottom: 4px;
-    right: 6px;
-    width: 22px;
-    height: 22px;
-    cursor: ns-resize;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--subtext);
-    opacity: .55;
-    transition: opacity .2s, background .2s;
-    border-radius: 6px;
-    touch-action: none;
-    user-select: none;
-    z-index: 2;
-  }
-  body.lang-fa .resize-handle {
-    right: auto;
-    left: 6px;
-  }
-  .resize-handle:hover { opacity: 1; background: var(--border); }
-  .resize-handle svg { width: 14px; height: 14px; }
-  .resize-handle:active { opacity: 1; }
-
-  .voice-select {
-    margin-top: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .voice-select label {
-    font-size: 13px;
-    color: var(--subtext);
-    font-weight: 500;
-  }
-  select {
-    width: 100%;
-    padding: 12px 40px 12px 14px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-    background-color: var(--input-bg);
-    color: var(--text);
-    font-size: 15px;
-    outline: none;
-    cursor: pointer;
-    transition: border-color .2s, background .3s, color .3s;
-    appearance: none;
-    -webkit-appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235f6368'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 20px;
-    text-overflow: ellipsis;
-    font-family: inherit;
-    direction: ltr;
-    text-align: left;
-  }
-  body.dark select {
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239aa0a6'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
-  }
-  select:focus { border-color: var(--primary); }
-
-  .options-row {
-    margin-top: 14px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-  .option-item {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .option-item label {
-    font-size: 13px;
-    color: var(--subtext);
-    font-weight: 500;
-  }
-  @media (max-width: 480px) {
-    .options-row { grid-template-columns: 1fr; gap: 12px; }
+  .lang-btn {
+    height:40px;
+    padding:0 12px;
+    font-size:13px;
   }
 
   .actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 10px;
-    margin-top: 16px;
+    grid-template-columns:1fr 1fr;
   }
-  button.btn {
-    padding: 13px 12px;
-    border: none;
-    border-radius: 24px;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background .2s, transform .1s, opacity .2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    min-height: 48px;
-    white-space: nowrap;
-    font-family: inherit;
-  }
-  button.btn:active { transform: scale(.96); }
-  .btn-primary { background: var(--primary); color: #fff; }
-  body.dark .btn-primary { color: #202124; }
-  .btn-primary:hover { background: var(--primary-hover); }
-  .btn-outline {
-    background: transparent;
-    color: var(--text);
-    border: 1px solid var(--border);
-  }
-  .btn-outline:hover { background: var(--input-bg); }
-  .btn-test { background: var(--success); color: #fff; }
-  .btn-test:hover { opacity: .9; }
-  .btn:disabled { opacity: .5; cursor: not-allowed; }
-  .btn:disabled:active { transform: none; }
 
-  .controls {
-    margin-top: 20px;
-    display: none;
-    flex-direction: column;
-    gap: 14px;
-    animation: fadeIn .3s ease;
+  .actions .btn-primary {
+    grid-column:1 / -1;
+    order:-1;
   }
-  .controls.active { display: flex; }
+
   .control-row {
-    display: grid;
-    grid-template-columns: 90px 1fr 50px;
-    align-items: center;
-    gap: 12px;
-  }
-  .control-row label {
-    font-size: 13px;
-    color: var(--subtext);
-  }
-  .control-row output {
-    font-size: 13px;
-    color: var(--text);
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-    font-weight: 500;
-  }
-  body.lang-fa .control-row output { text-align: left; }
-
-  input[type="range"] {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
-    height: 24px;
-    background: transparent;
-    outline: none;
-    cursor: pointer;
-    margin: 0;
-  }
-  input[type="range"]::-webkit-slider-runnable-track {
-    height: 4px;
-    border-radius: 2px;
-    background: var(--slider-track);
-  }
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: var(--primary);
-    cursor: pointer;
-    margin-top: -7px;
-    transition: transform .15s;
-    box-shadow: 0 1px 3px rgba(0,0,0,.2);
-  }
-  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
-  input[type="range"]::-moz-range-track {
-    height: 4px;
-    border-radius: 2px;
-    background: var(--slider-track);
-  }
-  input[type="range"]::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
-    border: none;
-    border-radius: 50%;
-    background: var(--primary);
-    cursor: pointer;
-  }
-  body.lang-fa input[type="range"] { direction: ltr; }
-
-  .icon { width: 18px; height: 18px; flex-shrink: 0; }
-
-  .status {
-    margin-top: 14px;
-    font-size: 13px;
-    color: var(--subtext);
-    text-align: center;
-    min-height: 18px;
-    line-height: 1.6;
-    transition: color .2s;
-  }
-  .status.error { color: var(--danger); }
-  .status.ok { color: var(--success); }
-  .status.warn { color: var(--warning); }
-
-  /* ===== Help Modal ===== */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.5);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    z-index: 1000;
-    backdrop-filter: blur(4px);
-    animation: modalFadeIn .2s ease;
-  }
-  .modal-overlay.active {
-    display: flex;
-  }
-  @keyframes modalFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    grid-template-columns:78px 1fr 44px;
+    gap:8px;
   }
 
-  .modal-box {
-    background: var(--card);
-    color: var(--text);
-    border-radius: var(--radius);
-    box-shadow: 0 8px 32px rgba(0,0,0,.3);
-    width: 100%;
-    max-width: 520px;
-    max-height: 85vh;
-    display: flex;
-    flex-direction: column;
-    animation: modalSlideUp .3s ease;
-    overflow: hidden;
-  }
-  @keyframes modalSlideUp {
-    from { opacity: 0; transform: translateY(20px) scale(.97); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+  button.btn {
+    min-height:46px;
+    font-size:14px;
   }
 
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 18px 20px;
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-  }
-  .modal-header h2 {
-    font-size: 17px;
-    font-weight: 600;
-    margin: 0;
-    color: var(--text);
-  }
-  .modal-close {
-    background: transparent;
-    border: none;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--subtext);
-    transition: background .2s;
-    flex-shrink: 0;
-  }
-  .modal-close:hover { background: var(--input-bg); }
-  .modal-close svg { width: 20px; height: 20px; }
-
-  .modal-body {
-    padding: 20px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    line-height: 1.7;
-    font-size: 14px;
-    flex: 1;
-  }
-  .modal-body h3 {
-    font-size: 15px;
-    font-weight: 600;
-    margin: 18px 0 8px;
-    color: var(--primary);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .modal-body h3:first-child { margin-top: 0; }
-  .modal-body p {
-    margin: 6px 0;
-    color: var(--text);
-  }
-  .modal-body ul {
-    margin: 6px 0;
-    padding-inline-start: 20px;
-  }
-  .modal-body li {
-    margin: 4px 0;
-    color: var(--text);
-  }
-  .modal-body code {
-    background: var(--input-bg);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-family: 'Courier New', monospace;
-    font-size: 13px;
-    direction: ltr;
-    display: inline-block;
-  }
-  .modal-body .tip {
-    background: var(--input-bg);
-    border-inline-start: 3px solid var(--primary);
-    padding: 10px 14px;
-    border-radius: 8px;
-    margin: 10px 0;
-    font-size: 13px;
-  }
-  .modal-body .tip.warn {
-    border-inline-start-color: var(--warning);
-  }
-  .modal-body .tip.success {
-    border-inline-start-color: var(--success);
-  }
-  .modal-body ol {
-    padding-inline-start: 20px;
-    margin: 6px 0;
+  .btn span.btn-text {
+    display:none;
   }
 
-  @media (max-width: 480px) {
-    .modal-box { max-height: 90vh; border-radius: 14px; }
-    .modal-header { padding: 14px 16px; }
-    .modal-header h2 { font-size: 16px; }
-    .modal-body { padding: 16px; font-size: 13.5px; }
+  .actions .btn-primary span.btn-text {
+    display:inline;
   }
-
-  /* ===== Mobile ===== */
-  @media (max-width: 480px) {
-    body {
-      padding: 16px 12px calc(16px + env(safe-area-inset-bottom));
-      padding-top: calc(16px + env(safe-area-inset-top));
-    }
-    .card { padding: 18px 16px; border-radius: 14px; }
-    .header { margin-bottom: 14px; gap: 8px; }
-    .icon-btn { width: 40px; height: 40px; }
-    .lang-btn { height: 40px; padding: 0 12px; font-size: 13px; }
-    textarea { min-height: 120px; padding: 12px 14px 28px 14px; }
-    .actions { grid-template-columns: 1fr 1fr; gap: 8px; }
-    .actions .btn-primary { grid-column: 1 / -1; order: -1; }
-    .control-row { grid-template-columns: 78px 1fr 44px; gap: 8px; }
-    .control-row label { font-size: 12px; }
-    .control-row output { font-size: 12px; }
-    button.btn { padding: 12px 10px; font-size: 14px; min-height: 46px; }
-    .btn span.btn-text { display: none; }
-    .actions .btn-primary span.btn-text { display: inline; }
-  }
-
-  @media (max-width: 360px) {
-    .card { padding: 16px 12px; }
-    button.btn { font-size: 13px; padding: 11px 8px; }
-    .lang-btn { padding: 0 10px; }
-  }
-
-  @media (min-width: 900px) {
-    .container { max-width: 640px; }
-    .card { padding: 28px; }
-    textarea { min-height: 180px; }
-  }
-
-  @media (max-height: 500px) and (orientation: landscape) {
-    body { padding-top: 16px; }
-    textarea { min-height: 90px; }
-    .test-screen { padding: 20px 16px; }
-  }
+}
 </style>
 </head>
+
 <body class="lang-en">
+
 <div class="container">
+
   <div class="header">
+
     <h1 id="appTitle">Text Reader</h1>
+
     <div class="header-controls">
-      <button class="icon-btn" id="helpBtn" title="Help" aria-label="Help">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+
+      <button class="icon-btn"
+              id="helpBtn"
+              aria-label="Help">
+        ?
       </button>
-      <button class="lang-btn" id="langBtn" title="Change language">
+
+      <button class="lang-btn" id="langBtn">
         <span class="flag" id="langFlag">🇮🇷</span>
         <span id="langLabel">فارسی</span>
       </button>
-      <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
-        <svg id="themeIcon" viewBox="0 0 24 24" fill="currentColor"></svg>
+
+      <button class="icon-btn"
+              id="themeBtn"
+              aria-label="Toggle theme">
+        <svg id="themeIcon"
+             viewBox="0 0 24 24"
+             fill="currentColor"></svg>
       </button>
+
     </div>
   </div>
 
   <div class="card">
 
     <div class="test-screen" id="testScreen">
+
       <div class="spinner" id="testSpinner"></div>
-      <div class="test-icon" id="testIcon" style="display:none;"></div>
+
+      <div class="test-icon"
+           id="testIcon"
+           style="display:none">
+      </div>
+
       <div class="msg" id="testMsg"></div>
+
     </div>
 
     <div class="main-ui" id="mainUI">
 
       <div class="textarea-wrapper">
-        <textarea id="textInput" placeholder="Type or paste your English text here..."></textarea>
-        <div class="resize-handle" id="resizeHandle" title="Drag to resize">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 22H20V20H22V22ZM22 18H20V16H22V18ZM18 22H16V20H18V22ZM22 14H20V12H22V14ZM18 18H16V16H18V18ZM14 22H12V20H14V22ZM22 10H20V8H22V10ZM18 14H16V12H18V14ZM14 18H12V16H14V18ZM10 22H8V20H10V22Z"/></svg>
+
+        <textarea
+          id="textInput"
+          placeholder="Type or paste your text here..."></textarea>
+
+        <div class="resize-handle"
+             id="resizeHandle">
+
+          <svg viewBox="0 0 24 24"
+               fill="currentColor">
+
+            <path d="M22 22H20V20H22V22ZM22 18H20V16H22V18ZM18 22H16V20H18V22ZM22 14H20V12H22V14ZM18 18H16V16H18V18ZM14 22H12V20H14V22ZM22 10H20V8H22V10ZM18 14H16V12H18V14ZM14 18H12V16H14V18ZM10 22H8V20H10V22Z"/>
+
+          </svg>
+
         </div>
+
       </div>
 
+      <!-- ALL DEVICE VOICES -->
       <div class="voice-select">
-        <label for="voiceSelect" id="voiceLabel">🎤 Voice</label>
+
+        <label for="voiceSelect"
+               id="voiceLabel">
+          🎤 Voice
+        </label>
+
         <select id="voiceSelect"></select>
+
       </div>
 
       <div class="options-row">
+
         <div class="option-item">
-          <label for="repeatSelect" id="repeatLabel">🔁 Repeat</label>
+
+          <label for="repeatSelect"
+                 id="repeatLabel">
+            🔁 Repeat
+          </label>
+
           <select id="repeatSelect">
+
             <option value="1">Off</option>
             <option value="2">2×</option>
             <option value="3">3×</option>
             <option value="4">4×</option>
+
           </select>
+
         </div>
+
       </div>
 
       <div class="actions">
-        <button class="btn btn-primary" id="speakBtn">
-          <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-          <span class="btn-text" id="startLabel">Start</span>
+
+        <button class="btn btn-primary"
+                id="speakBtn">
+
+          <svg class="icon"
+               viewBox="0 0 24 24"
+               fill="currentColor">
+
+            <path d="M8 5v14l11-7z"/>
+
+          </svg>
+
+          <span class="btn-text"
+                id="startLabel">
+            Start
+          </span>
+
         </button>
-        <button class="btn btn-test" id="testBtn">
-          <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
-          <span class="btn-text" id="testLabel">Test</span>
+
+        <button class="btn btn-test"
+                id="testBtn">
+
+          <svg class="icon"
+               viewBox="0 0 24 24"
+               fill="currentColor">
+
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+
+          </svg>
+
+          <span class="btn-text"
+                id="testLabel">
+            Test
+          </span>
+
         </button>
-        <button class="btn btn-outline" id="stopBtn" disabled>
-          <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h12v12H6z"/></svg>
-          <span class="btn-text" id="stopLabel">Stop</span>
+
+        <button class="btn btn-outline"
+                id="stopBtn"
+                disabled>
+
+          <svg class="icon"
+               viewBox="0 0 24 24"
+               fill="currentColor">
+
+            <path d="M6 6h12v12H6z"/>
+
+          </svg>
+
+          <span class="btn-text"
+                id="stopLabel">
+            Stop
+          </span>
+
         </button>
+
       </div>
 
       <div class="controls" id="controls">
+
         <div class="control-row">
-          <label for="volume" id="volumeLabel">🔊 Volume</label>
-          <input type="range" id="volume" min="0" max="1" step="0.05" value="1">
-          <output id="volumeVal">100%</output>
+
+          <label for="volume"
+                 id="volumeLabel">
+            🔊 Volume
+          </label>
+
+          <input type="range"
+                 id="volume"
+                 min="0"
+                 max="1"
+                 step="0.05"
+                 value="1">
+
+          <output id="volumeVal">
+            100%
+          </output>
+
         </div>
+
         <div class="control-row">
-          <label for="rate" id="rateLabel">⚡ Speed</label>
-          <input type="range" id="rate" min="0.5" max="2" step="0.1" value="1">
-          <output id="rateVal">1.0x</output>
+
+          <label for="rate"
+                 id="rateLabel">
+            ⚡ Speed
+          </label>
+
+          <input type="range"
+                 id="rate"
+                 min=".5"
+                 max="2"
+                 step=".1"
+                 value="1">
+
+          <output id="rateVal">
+            1.0x
+          </output>
+
         </div>
+
         <div class="control-row">
-          <label for="pitch" id="pitchLabel">🎵 Pitch</label>
-          <input type="range" id="pitch" min="0" max="2" step="0.1" value="1">
-          <output id="pitchVal">1.0</output>
+
+          <label for="pitch"
+                 id="pitchLabel">
+            🎵 Pitch
+          </label>
+
+          <input type="range"
+                 id="pitch"
+                 min="0"
+                 max="2"
+                 step=".1"
+                 value="1">
+
+          <output id="pitchVal">
+            1.0
+          </output>
+
         </div>
+
       </div>
 
-      <div class="status" id="status"></div>
+      <div class="status"
+           id="status">
+      </div>
+
     </div>
 
   </div>
+
 </div>
 
-<!-- ===== Help Modal ===== -->
-<div class="modal-overlay" id="helpModal">
+
+<!-- HELP -->
+
+<div class="modal-overlay"
+     id="helpModal">
+
   <div class="modal-box">
+
     <div class="modal-header">
-      <h2 id="helpTitle">📖 Help</h2>
-      <button class="modal-close" id="helpClose" aria-label="Close">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+
+      <h2 id="helpTitle">
+        📖 Help
+      </h2>
+
+      <button class="modal-close"
+              id="helpClose">
+        ×
       </button>
+
     </div>
-    <div class="modal-body" id="helpBody"></div>
+
+    <div class="modal-body"
+         id="helpBody">
+    </div>
+
   </div>
+
 </div>
+
 
 <script>
-  // ==========================================================
-  // ===== PWA: manifest و آیکون inline + Service Worker =====
-  // ==========================================================
-  (function injectPWA() {
-    const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-      <rect width="512" height="512" rx="96" fill="#1a73e8"/>
-      <path d="M200 180h112v24H200zM200 232h112v24H200zM200 284h80v24h-80z" fill="#ffffff"/>
-      <circle cx="330" cy="360" r="56" fill="#ffffff"/>
-      <path d="M310 340v40l32-20z" fill="#1a73e8"/>
-    </svg>`;
 
-    const svgDataUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgIcon)));
+/* =========================================================
+   BASIC
+========================================================= */
 
-    const icon192 = document.createElement('link');
-    icon192.rel = 'icon';
-    icon192.type = 'image/svg+xml';
-    icon192.href = svgDataUrl;
-    document.head.appendChild(icon192);
+const $ = id => document.getElementById(id);
 
-    const appleIcon = document.createElement('link');
-    appleIcon.rel = 'apple-touch-icon';
-    appleIcon.href = svgDataUrl;
-    document.head.appendChild(appleIcon);
+const testScreen = $("testScreen");
+const testSpinner = $("testSpinner");
+const testIcon = $("testIcon");
+const testMsg = $("testMsg");
 
-    const manifest = {
-      name: 'Text Reader',
-      short_name: 'Reader',
-      description: 'Read English text with adjustable pauses and repetition',
-      start_url: './',
-      scope: './',
-      display: 'standalone',
-      orientation: 'portrait',
-      background_color: '#f6f8fc',
-      theme_color: '#1a73e8',
-      dir: 'auto',
-      lang: 'en',
-      icons: [
-        { src: svgDataUrl, sizes: '192x192', type: 'image/svg+xml', purpose: 'any' },
-        { src: svgDataUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'any' },
-        { src: svgDataUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'maskable' }
-      ]
-    };
+const mainUI = $("mainUI");
 
-    const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
-    const manifestUrl = URL.createObjectURL(manifestBlob);
-    const manifestLink = document.createElement('link');
-    manifestLink.rel = 'manifest';
-    manifestLink.href = manifestUrl;
-    document.head.appendChild(manifestLink);
+const textInput = $("textInput");
 
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js', { scope: './' })
-          .then(reg => console.log('✓ SW registered. Scope:', reg.scope))
-          .catch(err => console.error('✗ SW registration failed:', err));
-      });
-    }
-  })();
+const speakBtn = $("speakBtn");
+const testBtn = $("testBtn");
+const stopBtn = $("stopBtn");
 
-  // ==========================================================
-  // ===== اپلیکیشن اصلی =====
-  // ==========================================================
-  const $ = id => document.getElementById(id);
-  const testScreen = $('testScreen');
-  const testSpinner = $('testSpinner');
-  const testIcon = $('testIcon');
-  const testMsg = $('testMsg');
-  const mainUI = $('mainUI');
+const controls = $("controls");
 
-  const textInput = $('textInput');
-  const speakBtn = $('speakBtn');
-  const testBtn = $('testBtn');
-  const stopBtn = $('stopBtn');
-  const controls = $('controls');
-  const volume = $('volume'), rate = $('rate'), pitch = $('pitch');
-  const volumeVal = $('volumeVal'), rateVal = $('rateVal'), pitchVal = $('pitchVal');
-  const themeBtn = $('themeBtn'), themeIcon = $('themeIcon');
-  const statusEl = $('status');
-  const voiceSelect = $('voiceSelect');
-  const repeatSelect = $('repeatSelect');
-  const langBtn = $('langBtn');
-  const langFlag = $('langFlag');
-  const langLabel = $('langLabel');
-  const resizeHandle = $('resizeHandle');
+const volume = $("volume");
+const rate = $("rate");
+const pitch = $("pitch");
 
-  const i18n = {
-    en: {
-      title: 'Text Reader',
-      placeholder: 'Type or paste your English text here...',
-      voice: '🎤 Voice',
-      repeat: '🔁 Repeat',
-      repeatOff: 'Off',
-      repeatTimes: (n) => `${n}×`,
-      start: 'Start',
-      test: 'Test',
-      stop: 'Stop',
-      volume: '🔊 Volume',
-      speed: '⚡ Speed',
-      pitch: '🎵 Pitch',
-      loadingVoices: 'Loading voices from device...',
-      successTitle: (n) => `${n} English voice${n !== 1 ? 's' : ''} found!`,
-      successSub: 'Loading interface...',
-      warnTitle: 'No English voice found',
-      warnSub: (n) => `${n} voice${n !== 1 ? 's' : ''} available, but none are English. Pronunciation may be wrong.`,
-      warnHint: 'Settings → Text-to-Speech → Install English voices',
-      errNoSupport: 'Your browser does not support speech synthesis.<br>Please use Chrome or Edge.',
-      errNoVoices: 'No voices found on this device.<br><br>Please install English voice data from your device settings.',
-      reload: '🔄 Reload Page',
-      ready: (n) => `✓ Ready — ${n} English voice${n !== 1 ? 's' : ''} available`,
-      readyFallback: '⚠ No English voice — using fallback',
-      noVoices: '⚠ No voices available',
-      selected: (lang, name) => `✓ Selected: ${lang} — ${name}`,
-      reading: '🔊 Reading...',
-      readingRepeat: (n) => `🔊 Reading (${n}× repeat)...`,
-      finished: '✓ Finished reading',
-      stopped: '⏹ Stopped',
-      playingTest: '🔉 Playing test...',
-      emptyText: '⚠ Please enter some text',
-      switchTo: 'فارسی',
-      switchFlag: '🇮🇷'
-    },
-    fa: {
-      title: 'خواننده متن',
-      placeholder: 'متن انگلیسی خود را اینجا بنویسید یا بچسبانید...',
-      voice: '🎤 صدا',
-      repeat: '🔁 تکرار',
-      repeatOff: 'خاموش',
-      repeatTimes: (n) => `${n} بار`,
-      start: 'شروع',
-      test: 'تست',
-      stop: 'توقف',
-      volume: '🔊 صدا',
-      speed: '⚡ سرعت',
-      pitch: '🎵 زیر و بمی',
-      loadingVoices: 'در حال بارگذاری صداها...',
-      successTitle: (n) => `${n} صدای انگلیسی پیدا شد!`,
-      successSub: 'در حال بارگذاری رابط...',
-      warnTitle: 'صدای انگلیسی پیدا نشد',
-      warnSub: (n) => `${n} صدا موجوده ولی هیچ‌کدام انگلیسی نیست. تلفظ ممکنه اشتباه باشه.`,
-      warnHint: 'تنظیمات → تبدیل متن به گفتار → نصب صداهای انگلیسی',
-      errNoSupport: 'مرورگر شما از تبدیل متن به گفتار پشتیبانی نمی‌کند.<br>لطفاً از Chrome یا Edge استفاده کنید.',
-      errNoVoices: 'هیچ صدایی روی این دستگاه پیدا نشد.<br><br>لطفاً از تنظیمات دستگاه، صداهای انگلیسی را نصب کنید.',
-      reload: '🔄 بارگذاری مجدد',
-      ready: (n) => `✓ آماده — ${n} صدای انگلیسی موجود`,
-      readyFallback: '⚠ صدای انگلیسی نیست — از صدای پیش‌فرض استفاده می‌شود',
-      noVoices: '⚠ هیچ صدایی موجود نیست',
-      selected: (lang, name) => `✓ انتخاب شد: ${lang} — ${name}`,
-      reading: '🔊 در حال خواندن...',
-      readingRepeat: (n) => `🔊 در حال خواندن (${n} بار تکرار)...`,
-      finished: '✓ خواندن تمام شد',
-      stopped: '⏹ متوقف شد',
-      playingTest: '🔉 در حال پخش تست...',
-      emptyText: '⚠ لطفاً متنی وارد کنید',
-      switchTo: 'English',
-      switchFlag: '🇺🇸'
-    }
-  };
+const volumeVal = $("volumeVal");
+const rateVal = $("rateVal");
+const pitchVal = $("pitchVal");
 
-  // ==========================================================
-  // ===== Help content =====
-  // ==========================================================
-  const helpContent = {
-    en: `
-      <h3>🚀 Quick Start</h3>
-      <ul>
-        <li>Type or paste your English text in the box.</li>
-        <li>Choose a voice from the dropdown.</li>
-        <li>Hit <b>Start</b> to begin reading.</li>
-        <li>Use <b>Stop</b> to cancel anytime.</li>
-      </ul>
+const statusEl = $("status");
 
-      <h3>⏸ Custom Pauses with Dots</h3>
-      <p>Put dots between words to create pauses. Each dot = <b>0.3 seconds</b> pause (max 10s).</p>
-      <ul>
-        <li><code>hello. world</code> → 0.3s pause</li>
-        <li><code>hello.. world</code> → 0.6s pause</li>
-        <li><code>hello... world</code> → 0.9s pause</li>
-      </ul>
-      <div class="tip">
-        💡 Only dots <b>between words</b> are treated as pauses. Trailing dots at the end are ignored.
-      </div>
+const voiceSelect = $("voiceSelect");
+const repeatSelect = $("repeatSelect");
 
-      <h3>🔁 Repeat Mode</h3>
-      <p>Use the Repeat dropdown to hear each phrase 2×, 3× or 4× before moving on. Great for language learning!</p>
+const langBtn = $("langBtn");
+const langFlag = $("langFlag");
+const langLabel = $("langLabel");
 
-      <h3>🎚 Volume, Speed &amp; Pitch</h3>
-      <p>These sliders appear after you press <b>Start</b> once. Adjust them for the perfect listening experience.</p>
+const themeBtn = $("themeBtn");
+const themeIcon = $("themeIcon");
 
-      <h3>📱 Install on Android</h3>
-      <ol>
-        <li>Open this page in <b>Chrome</b> on Android.</li>
-        <li>Wait ~10 seconds for setup.</li>
-        <li>Tap the <b>⋮ menu</b> → <b>Install app</b> (or "Add to Home screen").</li>
-        <li>Launch it from the home screen — works fully offline!</li>
-      </ol>
-      <div class="tip success">
-        ✅ After installation, the app works completely offline — no internet needed.
-      </div>
+const helpBtn = $("helpBtn");
+const helpModal = $("helpModal");
+const helpClose = $("helpClose");
+const helpTitle = $("helpTitle");
+const helpBody = $("helpBody");
 
-      <h3>🔊 No Voice Found?</h3>
-      <p>Install English voices on your device:</p>
-      <ul>
-        <li><b>Android:</b> Settings → Language &amp; input → Text-to-Speech → Install voice data</li>
-        <li><b>Windows:</b> Settings → Time &amp; Language → Speech → Add voices</li>
-        <li><b>iOS/Mac:</b> Settings → Accessibility → Spoken Content → Voices</li>
-      </ul>
+const resizeHandle = $("resizeHandle");
 
-      <h3>❓ Tips</h3>
-      <ul>
-        <li>Your text is saved in the browser — no server, no tracking.</li>
-        <li>Theme and voice settings are stored locally.</li>
-        <li>Drag the handle at the bottom-right of the text box to resize it.</li>
-      </ul>
-    `,
-    fa: `
-      <h3>🚀 شروع سریع</h3>
-      <ul>
-        <li>متن انگلیسی خود را در کادر بنویسید یا بچسبانید.</li>
-        <li>از منوی کشویی یک صدا انتخاب کنید.</li>
-        <li>دکمه‌ی <b>شروع</b> را بزنید.</li>
-        <li>هر وقت خواستید متوقف کنید، <b>توقف</b> را بزنید.</li>
-      </ul>
 
-      <h3>⏸ مکث دلخواه با نقطه</h3>
-      <p>بین کلمات نقطه بگذارید تا مکث ایجاد شود. هر نقطه = <b>۰.۳ ثانیه</b> مکث (حداکثر ۱۰ ثانیه).</p>
-      <ul>
-        <li><code>hello. world</code> → ۰.۳ ثانیه مکث</li>
-        <li><code>hello.. world</code> → ۰.۶ ثانیه مکث</li>
-        <li><code>hello... world</code> → ۰.۹ ثانیه مکث</li>
-      </ul>
-      <div class="tip">
-        💡 فقط نقطه‌های <b>بین کلمات</b> به‌عنوان مکث در نظر گرفته می‌شن. نقطه‌های انتهای جمله نادیده گرفته می‌شن.
-      </div>
+/* =========================================================
+   LANGUAGE UI
+========================================================= */
 
-      <h3>🔁 حالت تکرار</h3>
-      <p>از منوی کشویی تکرار استفاده کنید تا هر عبارت ۲، ۳ یا ۴ بار خونده بشه. برای یادگیری زبان عالیه!</p>
+const i18n = {
 
-      <h3>🎚 صدا، سرعت و زیر و بمی</h3>
-      <p>این اسلایدرها بعد از اولین بار زدن <b>شروع</b> ظاهر می‌شن. تنظیمشون کنید تا تجربه‌ی شنیداری بهتری داشته باشید.</p>
+  en: {
+    title:"Text Reader",
+    placeholder:"Type or paste your text here...",
+    voice:"🎤 Voice",
+    repeat:"🔁 Repeat",
+    repeatOff:"Off",
+    repeatTimes:n => `${n}×`,
+    start:"Start",
+    test:"Test",
+    stop:"Stop",
+    volume:"🔊 Volume",
+    speed:"⚡ Speed",
+    pitch:"🎵 Pitch",
 
-      <h3>📱 نصب روی اندروید</h3>
-      <ol>
-        <li>این صفحه رو با مرورگر <b>Chrome</b> روی اندروید باز کنید.</li>
-        <li>حدود ۱۰ ثانیه صبر کنید تا تنظیمات کامل بشه.</li>
-        <li>روی منوی <b>⋮</b> بزنید → <b>نصب اپلیکیشن</b> (یا «افزودن به صفحه اصلی»).</li>
-        <li>از آیکون صفحه اصلی بازش کنید — کاملاً آفلاین کار می‌کنه!</li>
-      </ol>
-      <div class="tip success">
-        ✅ بعد از نصب، اپ کاملاً آفلاین کار می‌کنه — نیازی به اینترنت نیست.
-      </div>
+    loadingVoices:"Detecting voices installed on your device...",
 
-      <h3>🔊 صدای انگلیسی پیدا نمی‌شه؟</h3>
-      <p>صدای انگلیسی روی دستگاه نصب کنید:</p>
-      <ul>
-        <li><b>اندروید:</b> تنظیمات → زبان و ورودی → تبدیل متن به گفتار → نصب داده‌های صدا</li>
-        <li><b>ویندوز:</b> تنظیمات → زمان و زبان → گفتار → افزودن صداها</li>
-        <li><b>iOS/Mac:</b> تنظیمات → دسترس‌پذیری → محتوای گفتاری → صداها</li>
-      </ul>
+    voicesFound:n =>
+      `${n} voice${n !== 1 ? "s" : ""} found!`,
 
-      <h3>❓ نکات</h3>
-      <ul>
-        <li>متن شما فقط در مرورگر ذخیره می‌شه — بدون سرور، بدون ردیابی.</li>
-        <li>تم و تنظیمات صدا به صورت محلی ذخیره می‌شن.</li>
-        <li>برای تغییر اندازه‌ی کادر متن، دستگیره‌ی گوشه‌ی پایین رو بکشید.</li>
-      </ul>
-    `
-  };
+    ready:n =>
+      `✓ Ready — ${n} voice${n !== 1 ? "s" : ""} available`,
 
-  let currentLang = localStorage.getItem('lang') || 'en';
-  let t = i18n[currentLang];
+    noVoices:
+      "⚠ No voices available",
 
-  function applyLanguage(lang) {
-    currentLang = lang;
-    t = i18n[lang];
-    localStorage.setItem('lang', lang);
+    noSupport:
+      "❌ Your browser does not support speech synthesis.",
 
-    document.body.classList.remove('lang-en', 'lang-fa');
-    document.body.classList.add('lang-' + lang);
-    document.documentElement.lang = lang === 'fa' ? 'fa' : 'en';
-    document.documentElement.dir = lang === 'fa' ? 'rtl' : 'ltr';
+    selected:(lang,name) =>
+      `✓ Selected: ${lang} — ${name}`,
 
-    document.title = t.title;
-    $('appTitle').textContent = t.title;
-    $('voiceLabel').textContent = t.voice;
-    $('repeatLabel').textContent = t.repeat;
-    $('startLabel').textContent = t.start;
-    $('testLabel').textContent = t.test;
-    $('stopLabel').textContent = t.stop;
-    $('volumeLabel').textContent = t.volume;
-    $('rateLabel').textContent = t.speed;
-    $('pitchLabel').textContent = t.pitch;
-    textInput.placeholder = t.placeholder;
+    reading:"🔊 Reading...",
 
-    const repeatOpts = repeatSelect.options;
-    if (repeatOpts.length >= 4) {
-      repeatOpts[0].textContent = t.repeatOff;
-      repeatOpts[1].textContent = t.repeatTimes(2);
-      repeatOpts[2].textContent = t.repeatTimes(3);
-      repeatOpts[3].textContent = t.repeatTimes(4);
-    }
+    readingRepeat:n =>
+      `🔊 Reading (${n}× repeat)...`,
 
-    langLabel.textContent = t.switchTo;
-    langFlag.textContent = t.switchFlag;
+    finished:"✓ Finished reading",
 
-    // اگه مودال راهنما بازه، محتواش رو هم به‌روز کن
-    if (helpModal && helpModal.classList.contains('active')) {
-      renderHelp();
-    }
+    stopped:"⏹ Stopped",
 
-    if (mainUI.classList.contains('active')) {
-      const enVoices = voices.filter(v => v.lang.toLowerCase().startsWith('en'));
-      if (enVoices.length > 0) setStatus(t.ready(enVoices.length), 'ok');
-      else if (voices.length > 0) setStatus(t.readyFallback, 'warn');
-    }
+    playingTest:"🔉 Playing test...",
+
+    emptyText:"⚠ Please enter some text",
+
+    switchTo:"فارسی",
+    switchFlag:"🇮🇷",
+
+    helpTitle:"📖 Help"
+  },
+
+  fa: {
+    title:"خواننده متن",
+    placeholder:"متن خود را اینجا بنویسید یا بچسبانید...",
+    voice:"🎤 صدا",
+    repeat:"🔁 تکرار",
+    repeatOff:"خاموش",
+    repeatTimes:n => `${n} بار`,
+    start:"شروع",
+    test:"تست",
+    stop:"توقف",
+    volume:"🔊 صدا",
+    speed:"⚡ سرعت",
+    pitch:"🎵 زیر و بمی",
+
+    loadingVoices:
+      "در حال شناسایی صداهای نصب‌شده روی دستگاه...",
+
+    voicesFound:n =>
+      `${n} صدای نصب‌شده پیدا شد!`,
+
+    ready:n =>
+      `✓ آماده — ${n} صدا در دسترس است`,
+
+    noVoices:
+      "⚠ هیچ صدایی در دسترس نیست",
+
+    noSupport:
+      "❌ مرورگر شما از تبدیل متن به گفتار پشتیبانی نمی‌کند.",
+
+    selected:(lang,name) =>
+      `✓ انتخاب شد: ${lang} — ${name}`,
+
+    reading:"🔊 در حال خواندن...",
+
+    readingRepeat:n =>
+      `🔊 در حال خواندن (${n} بار تکرار)...`,
+
+    finished:"✓ خواندن تمام شد",
+
+    stopped:"⏹ متوقف شد",
+
+    playingTest:"🔉 در حال پخش تست...",
+
+    emptyText:"⚠ لطفاً متنی وارد کنید",
+
+    switchTo:"English",
+    switchFlag:"🇺🇸",
+
+    helpTitle:"📖 راهنما"
   }
 
-  langBtn.addEventListener('click', () => {
-    applyLanguage(currentLang === 'en' ? 'fa' : 'en');
-  });
+};
 
-  const sunIcon = '<path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0a.996.996 0 000-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/>';
-  const moonIcon = '<path d="M12 3a9 9 0 109 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 01-4.4 2.26 5.403 5.403 0 01-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/>';
+let currentLang =
+  localStorage.getItem("lang") || "en";
 
-  function setTheme(dark) {
-    document.body.classList.toggle('dark', dark);
-    themeIcon.innerHTML = dark ? sunIcon : moonIcon;
-    localStorage.setItem('theme', dark ? 'dark' : 'light');
-    const meta = document.querySelector('meta[name="theme-color"]:not([media])');
-    if (meta) meta.content = dark ? '#202124' : '#f6f8fc';
-  }
-  const savedTheme = localStorage.getItem('theme');
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  setTheme(savedTheme ? savedTheme === 'dark' : prefersDark);
-  themeBtn.addEventListener('click', () => setTheme(!document.body.classList.contains('dark')));
+let t = i18n[currentLang];
 
-  // ==========================================================
-  // ===== Help Modal Logic =====
-  // ==========================================================
-  const helpBtn = $('helpBtn');
-  const helpModal = $('helpModal');
-  const helpClose = $('helpClose');
-  const helpTitle = $('helpTitle');
-  const helpBody = $('helpBody');
 
-  function renderHelp() {
-    helpBody.innerHTML = helpContent[currentLang];
-    helpTitle.textContent = currentLang === 'fa' ? '📖 راهنما' : '📖 Help';
-  }
+/* =========================================================
+   APPLY LANGUAGE
+========================================================= */
 
-  helpBtn.addEventListener('click', () => {
+function applyLanguage(lang) {
+
+  currentLang = lang;
+  t = i18n[lang];
+
+  localStorage.setItem("lang",lang);
+
+  document.body.classList.remove(
+    "lang-en",
+    "lang-fa"
+  );
+
+  document.body.classList.add(
+    "lang-" + lang
+  );
+
+  document.documentElement.lang =
+    lang === "fa" ? "fa" : "en";
+
+  document.documentElement.dir =
+    lang === "fa" ? "rtl" : "ltr";
+
+  document.title = t.title;
+
+  $("appTitle").textContent = t.title;
+
+  $("voiceLabel").textContent = t.voice;
+  $("repeatLabel").textContent = t.repeat;
+
+  $("startLabel").textContent = t.start;
+  $("testLabel").textContent = t.test;
+  $("stopLabel").textContent = t.stop;
+
+  $("volumeLabel").textContent = t.volume;
+  $("rateLabel").textContent = t.speed;
+  $("pitchLabel").textContent = t.pitch;
+
+  textInput.placeholder = t.placeholder;
+
+  repeatSelect.options[0].textContent =
+    t.repeatOff;
+
+  repeatSelect.options[1].textContent =
+    t.repeatTimes(2);
+
+  repeatSelect.options[2].textContent =
+    t.repeatTimes(3);
+
+  repeatSelect.options[3].textContent =
+    t.repeatTimes(4);
+
+  langLabel.textContent = t.switchTo;
+  langFlag.textContent = t.switchFlag;
+
+  if (helpModal.classList.contains("active")) {
     renderHelp();
-    helpModal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-  });
-
-  function closeHelp() {
-    helpModal.classList.remove('active');
-    document.body.style.overflow = '';
   }
 
-  helpClose.addEventListener('click', closeHelp);
+  if (mainUI.classList.contains("active")) {
+    buildVoiceList();
+  }
+}
 
-  helpModal.addEventListener('click', (e) => {
-    if (e.target === helpModal) closeHelp();
-  });
+langBtn.addEventListener("click",() => {
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && helpModal.classList.contains('active')) closeHelp();
-  });
+  applyLanguage(
+    currentLang === "en"
+      ? "fa"
+      : "en"
+  );
 
-  // ==========================================================
-  // ===== Speech =====
-  // ==========================================================
+});
+
+
+/* =========================================================
+   THEME
+========================================================= */
+
+const sunIcon =
+`<path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5
+s5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1
+s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2
+c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1
+s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2
+c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1
+1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1z"/>`;
+
+const moonIcon =
+`<path d="M12 3a9 9 0 109 9c0-.46-.04-.92-.1-1.36
+a5.389 5.389 0 01-4.4 2.26
+5.403 5.403 0 01-3.14-9.8
+c-.44-.06-.9-.1-1.36-.1z"/>`;
+
+function setTheme(dark) {
+
+  document.body.classList.toggle(
+    "dark",
+    dark
+  );
+
+  themeIcon.innerHTML =
+    dark ? sunIcon : moonIcon;
+
+  localStorage.setItem(
+    "theme",
+    dark ? "dark" : "light"
+  );
+}
+
+const savedTheme =
+  localStorage.getItem("theme");
+
+const prefersDark =
+  window.matchMedia(
+    "(prefers-color-scheme: dark)"
+  ).matches;
+
+setTheme(
+  savedTheme
+    ? savedTheme === "dark"
+    : prefersDark
+);
+
+themeBtn.addEventListener("click",() => {
+
+  setTheme(
+    !document.body.classList.contains("dark")
+  );
+
+});
+
+
+/* =========================================================
+   HELP
+========================================================= */
+
+function renderHelp() {
+
+  if (currentLang === "fa") {
+
+    helpTitle.textContent = "📖 راهنما";
+
+    helpBody.innerHTML = `
+      <h3>🚀 شروع سریع</h3>
+
+      <ul>
+        <li>متن خود را داخل کادر وارد کنید.</li>
+        <li>از قسمت صدا یکی از Voiceهای نصب‌شده روی گوشی را انتخاب کنید.</li>
+        <li>روی «شروع» بزنید.</li>
+        <li>برای توقف از «توقف» استفاده کنید.</li>
+      </ul>
+
+      <h3>🌐 تشخیص خودکار زبان</h3>
+
+      <p>
+        برنامه به‌صورت خودکار تمام صداهایی را که
+        موتور تبدیل متن به گفتار دستگاه در اختیار مرورگر قرار می‌دهد
+        شناسایی می‌کند.
+      </p>
+
+      <p>
+        اگر صدای
+        <b>fa-IR</b>
+        روی دستگاه موجود باشد،
+        به‌صورت خودکار به لیست اضافه می‌شود.
+      </p>
+
+      <h3>🔁 تکرار</h3>
+
+      <p>
+        می‌توانید هر بخش را ۲، ۳ یا ۴ بار تکرار کنید.
+      </p>
+
+      <h3>🎚 تنظیم صدا</h3>
+
+      <p>
+        سرعت، بلندی صدا و زیر و بمی قابل تنظیم است.
+      </p>
+
+      <h3>💡 نکته</h3>
+
+      <p>
+        اگر زبان خاصی در لیست دیده نمی‌شود،
+        ابتدا Voice آن زبان را از تنظیمات موتور
+        Text-to-Speech گوشی نصب کنید.
+      </p>
+    `;
+
+  } else {
+
+    helpTitle.textContent = "📖 Help";
+
+    helpBody.innerHTML = `
+      <h3>🚀 Quick Start</h3>
+
+      <ul>
+        <li>Enter your text.</li>
+        <li>Select any voice installed on your device.</li>
+        <li>Press Start.</li>
+        <li>Press Stop whenever you want.</li>
+      </ul>
+
+      <h3>🌐 Automatic language detection</h3>
+
+      <p>
+        The app automatically detects all voices exposed
+        by your device's text-to-speech engine.
+      </p>
+
+      <p>
+        If a Persian Iran voice
+        <b>fa-IR</b>
+        is available, it is automatically added.
+      </p>
+
+      <h3>🔁 Repeat</h3>
+
+      <p>
+        Each text section can be repeated 2, 3 or 4 times.
+      </p>
+
+      <h3>🎚 Voice controls</h3>
+
+      <p>
+        Volume, speed and pitch can be adjusted.
+      </p>
+
+      <h3>💡 Tip</h3>
+
+      <p>
+        If a language does not appear,
+        install that language's TTS voice
+        in your device settings.
+      </p>
+    `;
+  }
+}
+
+helpBtn.addEventListener("click",() => {
+
+  renderHelp();
+
+  helpModal.classList.add("active");
+
+  document.body.style.overflow = "hidden";
+
+});
+
+function closeHelp() {
+
+  helpModal.classList.remove("active");
+
+  document.body.style.overflow = "";
+
+}
+
+helpClose.addEventListener(
+  "click",
+  closeHelp
+);
+
+helpModal.addEventListener(
+  "click",
+  e => {
+    if (e.target === helpModal) {
+      closeHelp();
+    }
+  }
+);
+
+document.addEventListener(
+  "keydown",
+  e => {
+
+    if (
+      e.key === "Escape" &&
+      helpModal.classList.contains("active")
+    ) {
+      closeHelp();
+    }
+
+  }
+);
+
+
+/* =========================================================
+   SPEECH ENGINE
+========================================================= */
+
+if (!("speechSynthesis" in window)) {
+
+  testSpinner.style.display = "none";
+
+  testIcon.style.display = "block";
+
+  testIcon.textContent = "❌";
+
+  testMsg.textContent = t.noSupport;
+
+} else {
+
   const synth = window.speechSynthesis;
+
   let voices = [];
-  let isSpeaking = false;
+
   let queue = [];
+
   let currentIndex = 0;
-  let stopRequested = false;
-  let activeTimeout = null;
-
-  const langNames = {
-    'en-us': '🇺🇸 English (US)', 'en-gb': '🇬🇧 English (UK)',
-    'en-au': '🇦🇺 English (Australia)', 'en-ca': '🇨🇦 English (Canada)',
-    'en-in': '🇮🇳 English (India)', 'en-ie': '🇮🇪 English (Ireland)',
-    'en-nz': '🇳🇿 English (New Zealand)', 'en-za': '🇿🇦 English (South Africa)',
-    'en-ng': '🇳🇬 English (Nigeria)', 'en-ke': '🇰🇪 English (Kenya)',
-    'en-ph': '🇵🇭 English (Philippines)', 'en-sg': '🇸🇬 English (Singapore)',
-    'en-hk': '🇭🇰 English (Hong Kong)', 'en-my': '🇲🇾 English (Malaysia)',
-    'en-pk': '🇵🇰 English (Pakistan)', 'en-bd': '🇧🇩 English (Bangladesh)',
-    'en-jm': '🇯🇲 English (Jamaica)', 'en-tt': '🇹🇹 English (Trinidad)'
-  };
-
-  function getLangLabel(lang) {
-    const key = lang.toLowerCase().replace('_', '-');
-    if (langNames[key]) return langNames[key];
-    const parts = key.split('-');
-    if (parts.length >= 2) return `🌐 English (${parts[1].toUpperCase()})`;
-    return `🌐 ${lang}`;
-  }
-
-  function getEnglishVoices() {
-    return voices.filter(v => v.lang.toLowerCase().startsWith('en'));
-  }
-
-  function setStatus(msg, type = '') {
-    statusEl.textContent = msg;
-    statusEl.className = 'status' + (type ? ' ' + type : '');
-  }
-
-  function runInitialTest() {
-    if (!('speechSynthesis' in window)) {
-      showTestError('❌', t.errNoSupport);
-      return;
-    }
-    testMsg.textContent = t.loadingVoices;
-    let attempts = 0;
-    const maxAttempts = 20;
-
-    const tryLoad = () => {
-      attempts++;
-      voices = synth.getVoices();
-      const enVoices = getEnglishVoices();
-      if (enVoices.length > 0) { showTestSuccess(enVoices.length); return; }
-      if (attempts >= maxAttempts) {
-        if (voices.length > 0) showTestWarning(voices.length);
-        else showTestError('⚠️', t.errNoVoices);
-        return;
-      }
-      setTimeout(tryLoad, 250);
-    };
-    tryLoad();
-  }
-
-  function showTestSuccess(enCount) {
-    testSpinner.style.display = 'none';
-    testIcon.style.display = 'block';
-    testIcon.textContent = '✅';
-    testMsg.innerHTML = `<b style="color:var(--success);">${t.successTitle(enCount)}</b><br><span style="font-size:13px;">${t.successSub}</span>`;
-    setTimeout(() => {
-      testScreen.classList.add('hidden');
-      mainUI.classList.add('active');
-      buildVoiceList();
-    }, 600);
-  }
-
-  function showTestWarning(totalCount) {
-    testSpinner.style.display = 'none';
-    testIcon.style.display = 'block';
-    testIcon.textContent = '⚠️';
-    testMsg.innerHTML = `<b style="color:var(--warning);">${t.warnTitle}</b><br>
-      <span style="font-size:13px;">${t.warnSub(totalCount)}</span><br><br>
-      <b style="font-size:13px;">${t.warnHint}</b>`;
-    setTimeout(() => {
-      testScreen.classList.add('hidden');
-      mainUI.classList.add('active');
-      buildVoiceList();
-    }, 1800);
-  }
-
-  function showTestError(icon, msg) {
-    testSpinner.style.display = 'none';
-    testIcon.style.display = 'block';
-    testIcon.textContent = icon;
-    testMsg.innerHTML = msg;
-    const reloadBtn = document.createElement('button');
-    reloadBtn.className = 'btn btn-primary';
-    reloadBtn.style.maxWidth = '200px';
-    reloadBtn.style.marginTop = '16px';
-    reloadBtn.textContent = t.reload;
-    reloadBtn.onclick = () => location.reload();
-    testMsg.appendChild(document.createElement('br'));
-    testMsg.appendChild(reloadBtn);
-  }
-
-  function buildVoiceList() {
-    voices = synth.getVoices();
-    const enVoices = getEnglishVoices();
-    const listToShow = enVoices.length ? enVoices : voices;
-    const prev = localStorage.getItem('voiceURI');
-
-    voiceSelect.innerHTML = '';
-    if (!listToShow.length) {
-      const opt = document.createElement('option');
-      opt.textContent = '—';
-      voiceSelect.appendChild(opt);
-      setStatus(t.noVoices, 'error');
-      speakBtn.disabled = true;
-      return;
-    }
-
-    listToShow.sort((a, b) => {
-      const aUS = a.lang.toLowerCase().startsWith('en-us') ? 0 : 1;
-      const bUS = b.lang.toLowerCase().startsWith('en-us') ? 0 : 1;
-      if (aUS !== bUS) return aUS - bUS;
-      return a.lang.localeCompare(b.lang);
-    });
-
-    listToShow.forEach(v => {
-      const opt = document.createElement('option');
-      opt.value = v.voiceURI;
-      opt.textContent = `${getLangLabel(v.lang)} — ${v.name}`;
-      if (prev && v.voiceURI === prev) opt.selected = true;
-      voiceSelect.appendChild(opt);
-    });
-
-    if (!voiceSelect.value && listToShow.length) {
-      voiceSelect.selectedIndex = 0;
-      localStorage.setItem('voiceURI', listToShow[0].voiceURI);
-    }
-
-    speakBtn.disabled = false;
-    const enCount = enVoices.length;
-    if (enCount > 0) setStatus(t.ready(enCount), 'ok');
-    else setStatus(t.readyFallback, 'warn');
-  }
-
-  function getSelectedVoice() {
-    const uri = voiceSelect.value;
-    if (!uri) return null;
-    return voices.find(v => v.voiceURI === uri) || null;
-  }
-
-  voiceSelect.addEventListener('change', () => {
-    localStorage.setItem('voiceURI', voiceSelect.value);
-    const v = getSelectedVoice();
-    if (v) setStatus(t.selected(getLangLabel(v.lang), v.name), 'ok');
-    if (isSpeaking) { stop(); setTimeout(speak, 150); }
-  });
-
-  if (synth.onvoiceschanged !== undefined) {
-    synth.onvoiceschanged = () => {
-      if (mainUI.classList.contains('active')) buildVoiceList();
-    };
-  }
-
-  // ==========================================================
-  // ===== مکث نقطه‌ها: هر نقطه = 0.3 ثانیه. سقف کل = 10 ثانیه =====
-  // ==========================================================
-  const MS_PER_DOT = 300;
-  const MAX_PAUSE_MS = 10000;
-  const MAX_DOTS = Math.floor(MAX_PAUSE_MS / MS_PER_DOT);
-
-  function tokenizeText(text) {
-    const normalized = text.replace(/\s+/g, ' ').trim();
-    const tokens = [];
-    let buffer = '';
-    let i = 0;
-
-    while (i < normalized.length) {
-      const ch = normalized[i];
-
-      if (ch === '.') {
-        let dotCount = 0;
-        let j = i;
-        while (j < normalized.length && (normalized[j] === '.' || normalized[j] === ' ')) {
-          if (normalized[j] === '.') dotCount++;
-          j++;
-        }
-        const hasWordAfter = j < normalized.length && /\S/.test(normalized[j]);
-        const hasTextBefore = buffer.trim().length > 0;
-
-        if (hasWordAfter && hasTextBefore && dotCount > 0) {
-          tokens.push({ type: 'text', value: buffer.trim() });
-          buffer = '';
-          const cappedDots = Math.min(dotCount, MAX_DOTS);
-          const pauseMs = Math.min(MS_PER_DOT * cappedDots, MAX_PAUSE_MS);
-          tokens.push({ type: 'pause', ms: pauseMs, dots: cappedDots });
-          i = j;
-          continue;
-        } else {
-          buffer += '.';
-          i++;
-          continue;
-        }
-      }
-      buffer += ch;
-      i++;
-    }
-    if (buffer.trim()) tokens.push({ type: 'text', value: buffer.trim() });
-    return tokens;
-  }
-
-  function buildChunksFromTokens(tokens, repeatCount) {
-    const chunks = [];
-    let currentText = '';
-    let pendingPause = 0;
-    let pendingDots = 0;
-
-    const flush = () => {
-      if (currentText.trim()) {
-        chunks.push({ type: 'speak', text: currentText.trim(), repeat: repeatCount, pauseAfter: pendingPause });
-      } else if (pendingPause > 0) {
-        chunks.push({ type: 'pause', pauseAfter: pendingPause, dots: pendingDots });
-      }
-      currentText = '';
-      pendingPause = 0;
-      pendingDots = 0;
-    };
-
-    for (const tok of tokens) {
-      if (tok.type === 'pause') {
-        if (currentText.trim()) {
-          currentText = currentText.trim();
-          pendingPause += tok.ms;
-          pendingDots += tok.dots;
-          flush();
-        } else {
-          pendingPause += tok.ms;
-          pendingDots += tok.dots;
-        }
-      } else {
-        if ((currentText + ' ' + tok.value).length > 180 && currentText.trim()) flush();
-        currentText += (currentText ? ' ' : '') + tok.value;
-      }
-    }
-    flush();
-    return chunks;
-  }
-
-  function splitText(text, repeatCount) {
-    return buildChunksFromTokens(tokenizeText(text), repeatCount);
-  }
-
-  function updateControls() {
-    volumeVal.textContent = Math.round(volume.value * 100) + '%';
-    rateVal.textContent = parseFloat(rate.value).toFixed(1) + 'x';
-    pitchVal.textContent = parseFloat(pitch.value).toFixed(1);
-  }
-  volume.addEventListener('input', updateControls);
-  rate.addEventListener('input', updateControls);
-  pitch.addEventListener('input', updateControls);
-
-  function clearActiveTimeout() {
-    if (activeTimeout) { clearTimeout(activeTimeout); activeTimeout = null; }
-  }
 
   let currentRepeatIndex = 0;
 
-  function speakNext() {
-    if (stopRequested) return;
-    if (currentIndex >= queue.length) { finishSpeaking(); return; }
+  let stopRequested = false;
 
-    const chunk = queue[currentIndex];
+  let activeTimeout = null;
 
-    if (chunk.type === 'pause') {
-      const voice = getSelectedVoice();
-      const u = new SpeechSynthesisUtterance('.');
-      if (voice) { u.voice = voice; u.lang = voice.lang; }
-      else u.lang = 'en-US';
-      u.volume = 0; u.rate = 1; u.pitch = 1;
+  let isSpeaking = false;
 
-      let advanced = false;
-      const advance = () => {
-        if (advanced || stopRequested) return;
-        advanced = true;
-        clearActiveTimeout();
-        currentIndex++;
-        speakNext();
-      };
-      u.onend = () => { activeTimeout = setTimeout(advance, chunk.pauseAfter); };
-      u.onerror = () => { activeTimeout = setTimeout(advance, chunk.pauseAfter); };
-      activeTimeout = setTimeout(advance, chunk.pauseAfter + 1500);
-      synth.speak(u);
+
+  /* =======================================================
+     LANGUAGE DISPLAY
+  ======================================================= */
+
+  const languageNames = {
+
+    "fa":"🇮🇷 فارسی",
+
+    "fa-ir":"🇮🇷 فارسی (ایران)",
+
+    "en":"🇺🇸 English",
+
+    "en-us":"🇺🇸 English (US)",
+
+    "en-gb":"🇬🇧 English (UK)",
+
+    "en-au":"🇦🇺 English (Australia)",
+
+    "en-ca":"🇨🇦 English (Canada)",
+
+    "en-in":"🇮🇳 English (India)",
+
+    "ar":"🌐 العربية",
+
+    "ar-sa":"🇸🇦 العربية (السعودية)",
+
+    "tr":"🇹🇷 Türkçe",
+
+    "tr-tr":"🇹🇷 Türkçe (Türkiye)",
+
+    "az":"🇦🇿 Azərbaycan dili",
+
+    "az-az":"🇦🇿 Azərbaycan dili",
+
+    "ru":"🇷🇺 Русский",
+
+    "ru-ru":"🇷🇺 Русский",
+
+    "de":"🇩🇪 Deutsch",
+
+    "de-de":"🇩🇪 Deutsch",
+
+    "fr":"🇫🇷 Français",
+
+    "fr-fr":"🇫🇷 Français",
+
+    "es":"🇪🇸 Español",
+
+    "es-es":"🇪🇸 Español",
+
+    "it":"🇮🇹 Italiano",
+
+    "it-it":"🇮🇹 Italiano",
+
+    "pt":"🌐 Português",
+
+    "pt-br":"🇧🇷 Português (Brasil)",
+
+    "zh":"🌐 中文",
+
+    "zh-cn":"🇨🇳 中文 (简体)",
+
+    "zh-tw":"🇹🇼 中文 (繁體)",
+
+    "ja":"🇯🇵 日本語",
+
+    "ja-jp":"🇯🇵 日本語",
+
+    "ko":"🇰🇷 한국어",
+
+    "ko-kr":"🇰🇷 한국어",
+
+    "hi":"🇮🇳 हिन्दी",
+
+    "hi-in":"🇮🇳 हिन्दी"
+  };
+
+
+  function normalizeLang(lang) {
+
+    return String(lang || "")
+      .trim()
+      .toLowerCase()
+      .replace("_","-");
+
+  }
+
+
+  /*
+   * این تابع هیچ زبان ناشناخته‌ای را حذف نمی‌کند.
+   *
+   * اگر مثلاً گوشی زبان جدیدی مثل:
+   *
+   * pl-PL
+   * nl-NL
+   * sv-SE
+   *
+   * ارائه کند، آن هم وارد لیست می‌شود.
+   */
+
+  function getLanguageLabel(lang) {
+
+    const normalized =
+      normalizeLang(lang);
+
+    if (languageNames[normalized]) {
+      return languageNames[normalized];
+    }
+
+    const base =
+      normalized.split("-")[0];
+
+    if (languageNames[base]) {
+      return languageNames[base];
+    }
+
+    /*
+     * زبان ناشناخته:
+     * مثلاً:
+     * pl-PL → 🌐 PL (PL)
+     */
+
+    if (normalized.includes("-")) {
+
+      const parts =
+        normalized.split("-");
+
+      return `🌐 ${parts[0].toUpperCase()} (${parts[1].toUpperCase()})`;
+    }
+
+    return `🌐 ${normalized.toUpperCase()}`;
+  }
+
+
+  /* =======================================================
+     GET ALL DEVICE VOICES
+  ======================================================= */
+
+  function getAllDeviceVoices() {
+
+    const result =
+      synth.getVoices() || [];
+
+    /*
+     * حذف Voiceهای تکراری
+     */
+
+    const unique = [];
+
+    const seen = new Set();
+
+    for (const voice of result) {
+
+      if (!voice) continue;
+
+      const key =
+        voice.voiceURI ||
+        `${voice.lang}|${voice.name}`;
+
+      if (seen.has(key)) continue;
+
+      seen.add(key);
+
+      unique.push(voice);
+    }
+
+    return unique;
+  }
+
+
+  /* =======================================================
+     SORT VOICES
+  ======================================================= */
+
+  function sortVoices(list) {
+
+    return list.sort((a,b) => {
+
+      const la =
+        normalizeLang(a.lang);
+
+      const lb =
+        normalizeLang(b.lang);
+
+      /*
+       * اول فارسی ایران
+       */
+
+      if (la === "fa-ir" && lb !== "fa-ir")
+        return -1;
+
+      if (lb === "fa-ir" && la !== "fa-ir")
+        return 1;
+
+      /*
+       * بعد سایر فارسی‌ها
+       */
+
+      const faA =
+        la.startsWith("fa");
+
+      const faB =
+        lb.startsWith("fa");
+
+      if (faA && !faB)
+        return -1;
+
+      if (faB && !faA)
+        return 1;
+
+      /*
+       * بعد انگلیسی
+       */
+
+      const enA =
+        la.startsWith("en");
+
+      const enB =
+        lb.startsWith("en");
+
+      if (enA && !enB)
+        return -1;
+
+      if (enB && !enA)
+        return 1;
+
+      /*
+       * بقیه زبان‌ها بر اساس نام زبان
+       */
+
+      const nameA =
+        getLanguageLabel(a.lang) +
+        " " +
+        a.name;
+
+      const nameB =
+        getLanguageLabel(b.lang) +
+        " " +
+        b.name;
+
+      return nameA.localeCompare(
+        nameB,
+        undefined,
+        {
+          sensitivity:"base"
+        }
+      );
+
+    });
+
+  }
+
+
+  /* =======================================================
+     BUILD VOICE LIST
+  ======================================================= */
+
+  function buildVoiceList() {
+
+    voices =
+      getAllDeviceVoices();
+
+    const previous =
+      localStorage.getItem("voiceURI");
+
+    voiceSelect.innerHTML = "";
+
+    if (!voices.length) {
+
+      const option =
+        document.createElement("option");
+
+      option.textContent = "—";
+
+      voiceSelect.appendChild(option);
+
+      speakBtn.disabled = true;
+
+      setStatus(
+        t.noVoices,
+        "error"
+      );
+
       return;
     }
 
-    const totalRepeats = chunk.repeat || 1;
-    const u = new SpeechSynthesisUtterance(chunk.text);
-    const voice = getSelectedVoice();
-    if (voice) { u.voice = voice; u.lang = voice.lang; }
-    else u.lang = 'en-US';
-    u.volume = parseFloat(volume.value);
-    u.rate = parseFloat(rate.value);
-    u.pitch = parseFloat(pitch.value);
+    sortVoices(voices);
 
-    let advanced = false;
-    const advance = () => {
-      if (advanced || stopRequested) return;
-      advanced = true;
-      clearActiveTimeout();
-      currentRepeatIndex++;
-      if (currentRepeatIndex < totalRepeats) {
-        activeTimeout = setTimeout(() => { if (!stopRequested) speakNext(); }, 120);
-      } else {
-        currentRepeatIndex = 0;
-        currentIndex++;
-        if (chunk.pauseAfter && chunk.pauseAfter > 0) {
-          activeTimeout = setTimeout(() => { if (!stopRequested) speakNext(); }, chunk.pauseAfter);
-        } else {
-          speakNext();
-        }
+    voices.forEach(voice => {
+
+      const option =
+        document.createElement("option");
+
+      option.value =
+        voice.voiceURI;
+
+      let label =
+        `${getLanguageLabel(voice.lang)} — ${voice.name}`;
+
+      if (voice.default) {
+        label += " ⭐";
       }
-    };
-    u.onend = advance;
-    u.onerror = (e) => { console.error('Speech error', e); advance(); };
-    synth.speak(u);
+
+      option.textContent = label;
+
+      if (
+        previous &&
+        voice.voiceURI === previous
+      ) {
+        option.selected = true;
+      }
+
+      voiceSelect.appendChild(option);
+
+    });
+
+
+    /*
+     * اگر Voice قبلی پیدا نشد
+     */
+
+    if (!voiceSelect.value) {
+
+      /*
+       * اولویت با فارسی ایران
+       */
+
+      const faIR =
+        voices.find(v =>
+          normalizeLang(v.lang) === "fa-ir"
+        );
+
+      /*
+       * سپس انگلیسی US
+       */
+
+      const enUS =
+        voices.find(v =>
+          normalizeLang(v.lang) === "en-us"
+        );
+
+      const selected =
+        faIR ||
+        enUS ||
+        voices.find(v => v.default) ||
+        voices[0];
+
+      if (selected) {
+
+        voiceSelect.value =
+          selected.voiceURI;
+
+        localStorage.setItem(
+          "voiceURI",
+          selected.voiceURI
+        );
+      }
+    }
+
+
+    speakBtn.disabled = false;
+
+    /*
+     * شمارش زبان‌های مختلف
+     */
+
+    const languages =
+      new Set(
+        voices.map(v =>
+          normalizeLang(v.lang)
+        )
+      );
+
+    setStatus(
+      t.ready(
+        `${voices.length} / ${languages.size}`
+      ),
+      "ok"
+    );
+
   }
+
+
+  /* =======================================================
+     STATUS
+  ======================================================= */
+
+  function setStatus(
+    message,
+    type = ""
+  ) {
+
+    statusEl.textContent = message;
+
+    statusEl.className =
+      "status" +
+      (type ? " " + type : "");
+
+  }
+
+
+  /* =======================================================
+     INITIAL VOICE DETECTION
+  ======================================================= */
+
+  function detectVoices() {
+
+    testMsg.textContent =
+      t.loadingVoices;
+
+    let attempts = 0;
+
+    const maxAttempts = 30;
+
+    function check() {
+
+      attempts++;
+
+      voices =
+        getAllDeviceVoices();
+
+      if (voices.length > 0) {
+
+        showTestSuccess(
+          voices.length
+        );
+
+        return;
+      }
+
+      if (attempts >= maxAttempts) {
+
+        showTestError();
+
+        return;
+      }
+
+      setTimeout(
+        check,
+        250
+      );
+    }
+
+    check();
+
+  }
+
+
+  function showTestSuccess(count) {
+
+    testSpinner.style.display =
+      "none";
+
+    testIcon.style.display =
+      "block";
+
+    testIcon.textContent =
+      "✅";
+
+    testMsg.innerHTML = `
+      <b style="color:var(--success)">
+        ${t.voicesFound(count)}
+      </b>
+      <br>
+      <span style="font-size:13px">
+        ${currentLang === "fa"
+          ? "در حال آماده‌سازی برنامه..."
+          : "Preparing the application..."}
+      </span>
+    `;
+
+    setTimeout(() => {
+
+      testScreen.classList.add(
+        "hidden"
+      );
+
+      mainUI.classList.add(
+        "active"
+      );
+
+      buildVoiceList();
+
+    },600);
+
+  }
+
+
+  function showTestError() {
+
+    testSpinner.style.display =
+      "none";
+
+    testIcon.style.display =
+      "block";
+
+    testIcon.textContent =
+      "⚠️";
+
+    testMsg.innerHTML = `
+      <b style="color:var(--warning)">
+        ${t.noVoices}
+      </b>
+      <br><br>
+      <span style="font-size:13px">
+        ${
+          currentLang === "fa"
+            ? "لطفاً موتور تبدیل متن به گفتار و Voiceهای دستگاه را بررسی کنید."
+            : "Please check your device text-to-speech engine and installed voices."
+        }
+      </span>
+    `;
+
+  }
+
+
+  /* =======================================================
+     VOICE CHANGED
+  ======================================================= */
+
+  /*
+   * وقتی کاربر Voice جدیدی نصب کند
+   * یا موتور TTS لیست را تغییر دهد،
+   * لیست برنامه هم خودکار به‌روزرسانی می‌شود.
+   */
+
+  if ("onvoiceschanged" in synth) {
+
+    synth.onvoiceschanged =
+      function() {
+
+        if (
+          mainUI.classList.contains(
+            "active"
+          )
+        ) {
+
+          const current =
+            voiceSelect.value;
+
+          buildVoiceList();
+
+          /*
+           * تلاش برای حفظ انتخاب قبلی
+           */
+
+          if (current) {
+
+            const exists =
+              voices.some(
+                v =>
+                  v.voiceURI === current
+              );
+
+            if (exists) {
+
+              voiceSelect.value =
+                current;
+            }
+          }
+
+        }
+
+      };
+
+  }
+
+
+  /*
+   * روش استاندارد EventTarget
+   */
+
+  if (
+    typeof synth.addEventListener ===
+    "function"
+  ) {
+
+    synth.addEventListener(
+      "voiceschanged",
+      () => {
+
+        if (
+          mainUI.classList.contains(
+            "active"
+          )
+        ) {
+          buildVoiceList();
+        }
+
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     SELECTED VOICE
+  ======================================================= */
+
+  function getSelectedVoice() {
+
+    const uri =
+      voiceSelect.value;
+
+    if (!uri) return null;
+
+    return voices.find(
+      voice =>
+        voice.voiceURI === uri
+    ) || null;
+
+  }
+
+
+  voiceSelect.addEventListener(
+    "change",
+    () => {
+
+      const voice =
+        getSelectedVoice();
+
+      if (!voice) return;
+
+      localStorage.setItem(
+        "voiceURI",
+        voice.voiceURI
+      );
+
+      setStatus(
+        t.selected(
+          getLanguageLabel(
+            voice.lang
+          ),
+          voice.name
+        ),
+        "ok"
+      );
+
+      if (isSpeaking) {
+
+        stop();
+
+        setTimeout(
+          speak,
+          150
+        );
+
+      }
+
+    }
+  );
+
+
+  /* =======================================================
+     TEXT TOKENIZER
+  ======================================================= */
+
+  const MS_PER_DOT = 300;
+
+  const MAX_PAUSE_MS = 10000;
+
+  const MAX_DOTS =
+    Math.floor(
+      MAX_PAUSE_MS /
+      MS_PER_DOT
+    );
+
+
+  function tokenizeText(text) {
+
+    const normalized =
+      text
+        .replace(/\s+/g," ")
+        .trim();
+
+    const tokens = [];
+
+    let buffer = "";
+
+    let i = 0;
+
+    while (
+      i < normalized.length
+    ) {
+
+      const ch =
+        normalized[i];
+
+      if (ch === ".") {
+
+        let dotCount = 0;
+
+        let j = i;
+
+        while (
+          j < normalized.length &&
+          (
+            normalized[j] === "." ||
+            normalized[j] === " "
+          )
+        ) {
+
+          if (
+            normalized[j] === "."
+          ) {
+            dotCount++;
+          }
+
+          j++;
+
+        }
+
+        const hasWordAfter =
+          j < normalized.length &&
+          /\S/.test(
+            normalized[j]
+          );
+
+        const hasTextBefore =
+          buffer.trim().length > 0;
+
+        if (
+          hasWordAfter &&
+          hasTextBefore &&
+          dotCount > 0
+        ) {
+
+          tokens.push({
+            type:"text",
+            value:buffer.trim()
+          });
+
+          buffer = "";
+
+          const cappedDots =
+            Math.min(
+              dotCount,
+              MAX_DOTS
+            );
+
+          const pauseMs =
+            Math.min(
+              MS_PER_DOT *
+              cappedDots,
+              MAX_PAUSE_MS
+            );
+
+          tokens.push({
+            type:"pause",
+            ms:pauseMs,
+            dots:cappedDots
+          });
+
+          i = j;
+
+          continue;
+        }
+
+        buffer += ".";
+
+        i++;
+
+        continue;
+
+      }
+
+      buffer += ch;
+
+      i++;
+
+    }
+
+    if (buffer.trim()) {
+
+      tokens.push({
+        type:"text",
+        value:buffer.trim()
+      });
+
+    }
+
+    return tokens;
+
+  }
+
+
+  function buildChunks(
+    tokens,
+    repeatCount
+  ) {
+
+    const chunks = [];
+
+    let currentText = "";
+
+    let pendingPause = 0;
+
+    const flush = () => {
+
+      if (
+        currentText.trim()
+      ) {
+
+        chunks.push({
+          type:"speak",
+          text:currentText.trim(),
+          repeat:repeatCount,
+          pauseAfter:pendingPause
+        });
+
+      }
+
+      currentText = "";
+
+      pendingPause = 0;
+
+    };
+
+
+    for (const token of tokens) {
+
+      if (
+        token.type === "pause"
+      ) {
+
+        if (
+          currentText.trim()
+        ) {
+
+          currentText =
+            currentText.trim();
+
+          pendingPause +=
+            token.ms;
+
+          flush();
+
+        }
+
+      } else {
+
+        if (
+          (
+            currentText +
+            " " +
+            token.value
+          ).length > 180 &&
+          currentText.trim()
+        ) {
+
+          flush();
+
+        }
+
+        currentText +=
+          (
+            currentText
+              ? " "
+              : ""
+          ) +
+          token.value;
+
+      }
+
+    }
+
+    flush();
+
+    return chunks;
+
+  }
+
+
+  function splitText(
+    text,
+    repeatCount
+  ) {
+
+    return buildChunks(
+      tokenizeText(text),
+      repeatCount
+    );
+
+  }
+
+
+  /* =======================================================
+     CONTROLS
+  ======================================================= */
+
+  function updateControls() {
+
+    volumeVal.textContent =
+      Math.round(
+        volume.value * 100
+      ) + "%";
+
+    rateVal.textContent =
+      parseFloat(
+        rate.value
+      ).toFixed(1) + "x";
+
+    pitchVal.textContent =
+      parseFloat(
+        pitch.value
+      ).toFixed(1);
+
+  }
+
+  volume.addEventListener(
+    "input",
+    updateControls
+  );
+
+  rate.addEventListener(
+    "input",
+    updateControls
+  );
+
+  pitch.addEventListener(
+    "input",
+    updateControls
+  );
+
+
+  /* =======================================================
+     SPEAK
+  ======================================================= */
+
+  function clearTimeoutSafe() {
+
+    if (activeTimeout) {
+
+      clearTimeout(
+        activeTimeout
+      );
+
+      activeTimeout = null;
+
+    }
+
+  }
+
+
+  function speakNext() {
+
+    if (stopRequested)
+      return;
+
+    if (
+      currentIndex >=
+      queue.length
+    ) {
+
+      finishSpeaking();
+
+      return;
+    }
+
+    const chunk =
+      queue[currentIndex];
+
+    if (
+      chunk.type === "pause"
+    ) {
+
+      activeTimeout =
+        setTimeout(
+          () => {
+
+            currentIndex++;
+
+            speakNext();
+
+          },
+          chunk.pauseAfter
+        );
+
+      return;
+    }
+
+
+    const totalRepeats =
+      chunk.repeat || 1;
+
+    const utterance =
+      new SpeechSynthesisUtterance(
+        chunk.text
+      );
+
+    const voice =
+      getSelectedVoice();
+
+    if (voice) {
+
+      utterance.voice =
+        voice;
+
+      utterance.lang =
+        voice.lang;
+
+    }
+
+
+    utterance.volume =
+      parseFloat(
+        volume.value
+      );
+
+    utterance.rate =
+      parseFloat(
+        rate.value
+      );
+
+    utterance.pitch =
+      parseFloat(
+        pitch.value
+      );
+
+
+    utterance.onend = () => {
+
+      if (stopRequested)
+        return;
+
+      currentRepeatIndex++;
+
+      if (
+        currentRepeatIndex <
+        totalRepeats
+      ) {
+
+        activeTimeout =
+          setTimeout(
+            () => {
+
+              if (!stopRequested) {
+
+                synth.speak(
+                  createRepeatUtterance(
+                    chunk.text
+                  )
+                );
+
+              }
+
+            },
+            120
+          );
+
+        return;
+
+      }
+
+
+      currentRepeatIndex = 0;
+
+      currentIndex++;
+
+      if (
+        chunk.pauseAfter > 0
+      ) {
+
+        activeTimeout =
+          setTimeout(
+            speakNext,
+            chunk.pauseAfter
+          );
+
+      } else {
+
+        speakNext();
+
+      }
+
+    };
+
+
+    utterance.onerror =
+      () => {
+
+        if (!stopRequested) {
+
+          currentRepeatIndex = 0;
+
+          currentIndex++;
+
+          speakNext();
+
+        }
+
+      };
+
+
+    synth.speak(
+      utterance
+    );
+
+  }
+
+
+  function createRepeatUtterance(
+    text
+  ) {
+
+    const u =
+      new SpeechSynthesisUtterance(
+        text
+      );
+
+    const voice =
+      getSelectedVoice();
+
+    if (voice) {
+
+      u.voice = voice;
+
+      u.lang = voice.lang;
+
+    }
+
+    u.volume =
+      parseFloat(volume.value);
+
+    u.rate =
+      parseFloat(rate.value);
+
+    u.pitch =
+      parseFloat(pitch.value);
+
+    u.onend = () => {
+
+      if (stopRequested)
+        return;
+
+      currentRepeatIndex++;
+
+      const chunk =
+        queue[currentIndex];
+
+      const total =
+        chunk.repeat || 1;
+
+      if (
+        currentRepeatIndex <
+        total
+      ) {
+
+        activeTimeout =
+          setTimeout(
+            () => {
+
+              synth.speak(
+                createRepeatUtterance(
+                  chunk.text
+                )
+              );
+
+            },
+            120
+          );
+
+      } else {
+
+        currentRepeatIndex = 0;
+
+        currentIndex++;
+
+        if (
+          chunk.pauseAfter
+        ) {
+
+          activeTimeout =
+            setTimeout(
+              speakNext,
+              chunk.pauseAfter
+            );
+
+        } else {
+
+          speakNext();
+
+        }
+
+      }
+
+    };
+
+    return u;
+
+  }
+
 
   function finishSpeaking() {
+
     isSpeaking = false;
+
     speakBtn.disabled = false;
+
     stopBtn.disabled = true;
+
+    currentIndex = 0;
+
     currentRepeatIndex = 0;
-    setStatus(t.finished, 'ok');
+
+    setStatus(
+      t.finished,
+      "ok"
+    );
+
   }
+
 
   function speak() {
-    const text = textInput.value.trim();
-    if (!text) {
-      textInput.focus();
-      textInput.style.borderColor = '#ea4335';
-      setTimeout(() => textInput.style.borderColor = '', 800);
-      setStatus(t.emptyText, 'error');
-      return;
-    }
-    if (synth.speaking || synth.pending) synth.cancel();
-    clearActiveTimeout();
-    if (!voices.length) voices = synth.getVoices();
 
-    const repeatCount = parseInt(repeatSelect.value, 10) || 1;
-    queue = splitText(text, repeatCount);
+    const text =
+      textInput.value.trim();
+
+    if (!text) {
+
+      textInput.focus();
+
+      setStatus(
+        t.emptyText,
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    synth.cancel();
+
+    clearTimeoutSafe();
+
+
+    voices =
+      getAllDeviceVoices();
+
+
+    const repeatCount =
+      parseInt(
+        repeatSelect.value,
+        10
+      ) || 1;
+
+
+    queue =
+      splitText(
+        text,
+        repeatCount
+      );
+
+
     currentIndex = 0;
+
     currentRepeatIndex = 0;
-    isSpeaking = true;
+
     stopRequested = false;
 
+    isSpeaking = true;
+
+
     speakBtn.disabled = true;
+
     stopBtn.disabled = false;
-    controls.classList.add('active');
 
-    if (repeatCount > 1) setStatus(t.readingRepeat(repeatCount));
-    else setStatus(t.reading);
+    controls.classList.add(
+      "active"
+    );
 
-    activeTimeout = setTimeout(speakNext, 100);
+
+    if (repeatCount > 1) {
+
+      setStatus(
+        t.readingRepeat(
+          repeatCount
+        )
+      );
+
+    } else {
+
+      setStatus(
+        t.reading
+      );
+
+    }
+
+
+    activeTimeout =
+      setTimeout(
+        speakNext,
+        100
+      );
+
   }
+
 
   function stop() {
+
     stopRequested = true;
-    clearActiveTimeout();
+
+    clearTimeoutSafe();
+
     synth.cancel();
+
     isSpeaking = false;
+
     currentIndex = 0;
+
     currentRepeatIndex = 0;
+
     queue = [];
+
     speakBtn.disabled = false;
+
     stopBtn.disabled = true;
-    setStatus(t.stopped);
+
+    setStatus(
+      t.stopped
+    );
+
   }
 
-  speakBtn.addEventListener('click', speak);
-  stopBtn.addEventListener('click', stop);
 
-  testBtn.addEventListener('click', () => {
-    synth.cancel();
-    clearActiveTimeout();
-    const u = new SpeechSynthesisUtterance('Hello, this is a test of the selected voice.');
-    const voice = getSelectedVoice();
-    if (voice) { u.voice = voice; u.lang = voice.lang; }
-    u.volume = parseFloat(volume.value);
-    u.rate = parseFloat(rate.value);
-    u.pitch = parseFloat(pitch.value);
-    synth.speak(u);
-    setStatus(t.playingTest);
-  });
+  speakBtn.addEventListener(
+    "click",
+    speak
+  );
 
-  textInput.addEventListener('input', () => { if (isSpeaking) stop(); });
+  stopBtn.addEventListener(
+    "click",
+    stop
+  );
 
-  (function setupResize() {
-    let startY = 0, startHeight = 0, dragging = false;
 
-    const onStart = (clientY) => {
-      dragging = true;
-      startY = clientY;
-      startHeight = textInput.offsetHeight;
-      document.body.style.userSelect = 'none';
-    };
-    const onMove = (clientY) => {
-      if (!dragging) return;
-      const delta = clientY - startY;
-      const newHeight = Math.max(70, Math.min(startHeight + delta, window.innerHeight * 0.85));
-      textInput.style.height = newHeight + 'px';
-    };
-    const onEnd = () => {
-      dragging = false;
-      document.body.style.userSelect = '';
-    };
+  /* =======================================================
+     TEST
+  ======================================================= */
 
-    resizeHandle.addEventListener('mousedown', (e) => { e.preventDefault(); onStart(e.clientY); });
-    window.addEventListener('mousemove', (e) => { if (dragging) onMove(e.clientY); });
-    window.addEventListener('mouseup', onEnd);
+  testBtn.addEventListener(
+    "click",
+    () => {
 
-    resizeHandle.addEventListener('touchstart', (e) => {
+      synth.cancel();
+
+      const voice =
+        getSelectedVoice();
+
+      if (!voice) {
+
+        setStatus(
+          t.noVoices,
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      /*
+       * تست با متن مناسب زبان انتخاب‌شده
+       */
+
+      let testText =
+        "Hello, this is a test of the selected voice.";
+
+      const lang =
+        normalizeLang(
+          voice.lang
+        );
+
+      if (
+        lang.startsWith("fa")
+      ) {
+
+        testText =
+          "سلام، این یک آزمایش برای صدای انتخاب شده است.";
+
+      }
+
+
+      const utterance =
+        new SpeechSynthesisUtterance(
+          testText
+        );
+
+      utterance.voice =
+        voice;
+
+      utterance.lang =
+        voice.lang;
+
+      utterance.volume =
+        parseFloat(volume.value);
+
+      utterance.rate =
+        parseFloat(rate.value);
+
+      utterance.pitch =
+        parseFloat(pitch.value);
+
+
+      synth.speak(
+        utterance
+      );
+
+      setStatus(
+        t.playingTest
+      );
+
+    }
+  );
+
+
+  /* =======================================================
+     TEXT CHANGE
+  ======================================================= */
+
+  textInput.addEventListener(
+    "input",
+    () => {
+
+      if (isSpeaking) {
+        stop();
+      }
+
+    }
+  );
+
+
+  /* =======================================================
+     RESIZE
+  ======================================================= */
+
+  let dragging = false;
+
+  let startY = 0;
+
+  let startHeight = 0;
+
+
+  function startResize(y) {
+
+    dragging = true;
+
+    startY = y;
+
+    startHeight =
+      textInput.offsetHeight;
+
+    document.body.style.userSelect =
+      "none";
+
+  }
+
+
+  function moveResize(y) {
+
+    if (!dragging)
+      return;
+
+    const delta =
+      y - startY;
+
+    const newHeight =
+      Math.max(
+        70,
+        Math.min(
+          startHeight + delta,
+          window.innerHeight * .85
+        )
+      );
+
+    textInput.style.height =
+      newHeight + "px";
+
+  }
+
+
+  function endResize() {
+
+    dragging = false;
+
+    document.body.style.userSelect =
+      "";
+
+  }
+
+
+  resizeHandle.addEventListener(
+    "mousedown",
+    e => {
+
       e.preventDefault();
-      const touch = e.touches[0];
-      onStart(touch.clientY);
-    }, { passive: false });
-    window.addEventListener('touchmove', (e) => {
-      if (!dragging) return;
-      const touch = e.touches[0];
-      onMove(touch.clientY);
-    }, { passive: true });
-    window.addEventListener('touchend', onEnd);
-    window.addEventListener('touchcancel', onEnd);
-  })();
 
-  window.addEventListener('beforeunload', () => synth.cancel());
+      startResize(
+        e.clientY
+      );
 
-  applyLanguage(currentLang);
+    }
+  );
+
+
+  window.addEventListener(
+    "mousemove",
+    e => {
+
+      if (dragging) {
+        moveResize(
+          e.clientY
+        );
+      }
+
+    }
+  );
+
+
+  window.addEventListener(
+    "mouseup",
+    endResize
+  );
+
+
+  resizeHandle.addEventListener(
+    "touchstart",
+    e => {
+
+      e.preventDefault();
+
+      startResize(
+        e.touches[0].clientY
+      );
+
+    },
+    {passive:false}
+  );
+
+
+  window.addEventListener(
+    "touchmove",
+    e => {
+
+      if (!dragging)
+        return;
+
+      moveResize(
+        e.touches[0].clientY
+      );
+
+    },
+    {passive:true}
+  );
+
+
+  window.addEventListener(
+    "touchend",
+    endResize
+  );
+
+
+  window.addEventListener(
+    "touchcancel",
+    endResize
+  );
+
+
+  window.addEventListener(
+    "beforeunload",
+    () => synth.cancel()
+  );
+
+
+  /* =======================================================
+     START
+  ======================================================= */
+
+  applyLanguage(
+    currentLang
+  );
+
   updateControls();
-  runInitialTest();
+
+  detectVoices();
+
+}
+
 </script>
+
 </body>
 </html>
