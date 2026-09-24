@@ -112,6 +112,8 @@
   .icon-btn:active { transform: scale(.92); }
   .icon-btn svg { width: 20px; height: 20px; }
 
+  #helpBtn:hover { transform: scale(1.1); }
+
   .lang-btn {
     background: var(--input-bg);
     border: none;
@@ -401,6 +403,142 @@
   .status.ok { color: var(--success); }
   .status.warn { color: var(--warning); }
 
+  /* ===== Help Modal ===== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+    animation: modalFadeIn .2s ease;
+  }
+  .modal-overlay.active {
+    display: flex;
+  }
+  @keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .modal-box {
+    background: var(--card);
+    color: var(--text);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 32px rgba(0,0,0,.3);
+    width: 100%;
+    max-width: 520px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    animation: modalSlideUp .3s ease;
+    overflow: hidden;
+  }
+  @keyframes modalSlideUp {
+    from { opacity: 0; transform: translateY(20px) scale(.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .modal-header h2 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text);
+  }
+  .modal-close {
+    background: transparent;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--subtext);
+    transition: background .2s;
+    flex-shrink: 0;
+  }
+  .modal-close:hover { background: var(--input-bg); }
+  .modal-close svg { width: 20px; height: 20px; }
+
+  .modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    line-height: 1.7;
+    font-size: 14px;
+    flex: 1;
+  }
+  .modal-body h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 18px 0 8px;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .modal-body h3:first-child { margin-top: 0; }
+  .modal-body p {
+    margin: 6px 0;
+    color: var(--text);
+  }
+  .modal-body ul {
+    margin: 6px 0;
+    padding-inline-start: 20px;
+  }
+  .modal-body li {
+    margin: 4px 0;
+    color: var(--text);
+  }
+  .modal-body code {
+    background: var(--input-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    direction: ltr;
+    display: inline-block;
+  }
+  .modal-body .tip {
+    background: var(--input-bg);
+    border-inline-start: 3px solid var(--primary);
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin: 10px 0;
+    font-size: 13px;
+  }
+  .modal-body .tip.warn {
+    border-inline-start-color: var(--warning);
+  }
+  .modal-body .tip.success {
+    border-inline-start-color: var(--success);
+  }
+  .modal-body ol {
+    padding-inline-start: 20px;
+    margin: 6px 0;
+  }
+
+  @media (max-width: 480px) {
+    .modal-box { max-height: 90vh; border-radius: 14px; }
+    .modal-header { padding: 14px 16px; }
+    .modal-header h2 { font-size: 16px; }
+    .modal-body { padding: 16px; font-size: 13.5px; }
+  }
+
+  /* ===== Mobile ===== */
   @media (max-width: 480px) {
     body {
       padding: 16px 12px calc(16px + env(safe-area-inset-bottom));
@@ -445,6 +583,9 @@
   <div class="header">
     <h1 id="appTitle">Text Reader</h1>
     <div class="header-controls">
+      <button class="icon-btn" id="helpBtn" title="Help" aria-label="Help">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+      </button>
       <button class="lang-btn" id="langBtn" title="Change language">
         <span class="flag" id="langFlag">🇮🇷</span>
         <span id="langLabel">فارسی</span>
@@ -528,6 +669,19 @@
   </div>
 </div>
 
+<!-- ===== Help Modal ===== -->
+<div class="modal-overlay" id="helpModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 id="helpTitle">📖 Help</h2>
+      <button class="modal-close" id="helpClose" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="helpBody"></div>
+  </div>
+</div>
+
 <script>
   // ==========================================================
   // ===== PWA: manifest و آیکون inline + Service Worker =====
@@ -579,7 +733,6 @@
     manifestLink.href = manifestUrl;
     document.head.appendChild(manifestLink);
 
-    // ===== ثبت Service Worker از فایل واقعی sw.js =====
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js', { scope: './' })
@@ -688,6 +841,116 @@
     }
   };
 
+  // ==========================================================
+  // ===== Help content =====
+  // ==========================================================
+  const helpContent = {
+    en: `
+      <h3>🚀 Quick Start</h3>
+      <ul>
+        <li>Type or paste your English text in the box.</li>
+        <li>Choose a voice from the dropdown.</li>
+        <li>Hit <b>Start</b> to begin reading.</li>
+        <li>Use <b>Stop</b> to cancel anytime.</li>
+      </ul>
+
+      <h3>⏸ Custom Pauses with Dots</h3>
+      <p>Put dots between words to create pauses. Each dot = <b>0.3 seconds</b> pause (max 10s).</p>
+      <ul>
+        <li><code>hello. world</code> → 0.3s pause</li>
+        <li><code>hello.. world</code> → 0.6s pause</li>
+        <li><code>hello... world</code> → 0.9s pause</li>
+      </ul>
+      <div class="tip">
+        💡 Only dots <b>between words</b> are treated as pauses. Trailing dots at the end are ignored.
+      </div>
+
+      <h3>🔁 Repeat Mode</h3>
+      <p>Use the Repeat dropdown to hear each phrase 2×, 3× or 4× before moving on. Great for language learning!</p>
+
+      <h3>🎚 Volume, Speed &amp; Pitch</h3>
+      <p>These sliders appear after you press <b>Start</b> once. Adjust them for the perfect listening experience.</p>
+
+      <h3>📱 Install on Android</h3>
+      <ol>
+        <li>Open this page in <b>Chrome</b> on Android.</li>
+        <li>Wait ~10 seconds for setup.</li>
+        <li>Tap the <b>⋮ menu</b> → <b>Install app</b> (or "Add to Home screen").</li>
+        <li>Launch it from the home screen — works fully offline!</li>
+      </ol>
+      <div class="tip success">
+        ✅ After installation, the app works completely offline — no internet needed.
+      </div>
+
+      <h3>🔊 No Voice Found?</h3>
+      <p>Install English voices on your device:</p>
+      <ul>
+        <li><b>Android:</b> Settings → Language &amp; input → Text-to-Speech → Install voice data</li>
+        <li><b>Windows:</b> Settings → Time &amp; Language → Speech → Add voices</li>
+        <li><b>iOS/Mac:</b> Settings → Accessibility → Spoken Content → Voices</li>
+      </ul>
+
+      <h3>❓ Tips</h3>
+      <ul>
+        <li>Your text is saved in the browser — no server, no tracking.</li>
+        <li>Theme and voice settings are stored locally.</li>
+        <li>Drag the handle at the bottom-right of the text box to resize it.</li>
+      </ul>
+    `,
+    fa: `
+      <h3>🚀 شروع سریع</h3>
+      <ul>
+        <li>متن انگلیسی خود را در کادر بنویسید یا بچسبانید.</li>
+        <li>از منوی کشویی یک صدا انتخاب کنید.</li>
+        <li>دکمه‌ی <b>شروع</b> را بزنید.</li>
+        <li>هر وقت خواستید متوقف کنید، <b>توقف</b> را بزنید.</li>
+      </ul>
+
+      <h3>⏸ مکث دلخواه با نقطه</h3>
+      <p>بین کلمات نقطه بگذارید تا مکث ایجاد شود. هر نقطه = <b>۰.۳ ثانیه</b> مکث (حداکثر ۱۰ ثانیه).</p>
+      <ul>
+        <li><code>hello. world</code> → ۰.۳ ثانیه مکث</li>
+        <li><code>hello.. world</code> → ۰.۶ ثانیه مکث</li>
+        <li><code>hello... world</code> → ۰.۹ ثانیه مکث</li>
+      </ul>
+      <div class="tip">
+        💡 فقط نقطه‌های <b>بین کلمات</b> به‌عنوان مکث در نظر گرفته می‌شن. نقطه‌های انتهای جمله نادیده گرفته می‌شن.
+      </div>
+
+      <h3>🔁 حالت تکرار</h3>
+      <p>از منوی کشویی تکرار استفاده کنید تا هر عبارت ۲، ۳ یا ۴ بار خونده بشه. برای یادگیری زبان عالیه!</p>
+
+      <h3>🎚 صدا، سرعت و زیر و بمی</h3>
+      <p>این اسلایدرها بعد از اولین بار زدن <b>شروع</b> ظاهر می‌شن. تنظیمشون کنید تا تجربه‌ی شنیداری بهتری داشته باشید.</p>
+
+      <h3>📱 نصب روی اندروید</h3>
+      <ol>
+        <li>این صفحه رو با مرورگر <b>Chrome</b> روی اندروید باز کنید.</li>
+        <li>حدود ۱۰ ثانیه صبر کنید تا تنظیمات کامل بشه.</li>
+        <li>روی منوی <b>⋮</b> بزنید → <b>نصب اپلیکیشن</b> (یا «افزودن به صفحه اصلی»).</li>
+        <li>از آیکون صفحه اصلی بازش کنید — کاملاً آفلاین کار می‌کنه!</li>
+      </ol>
+      <div class="tip success">
+        ✅ بعد از نصب، اپ کاملاً آفلاین کار می‌کنه — نیازی به اینترنت نیست.
+      </div>
+
+      <h3>🔊 صدای انگلیسی پیدا نمی‌شه؟</h3>
+      <p>صدای انگلیسی روی دستگاه نصب کنید:</p>
+      <ul>
+        <li><b>اندروید:</b> تنظیمات → زبان و ورودی → تبدیل متن به گفتار → نصب داده‌های صدا</li>
+        <li><b>ویندوز:</b> تنظیمات → زمان و زبان → گفتار → افزودن صداها</li>
+        <li><b>iOS/Mac:</b> تنظیمات → دسترس‌پذیری → محتوای گفتاری → صداها</li>
+      </ul>
+
+      <h3>❓ نکات</h3>
+      <ul>
+        <li>متن شما فقط در مرورگر ذخیره می‌شه — بدون سرور، بدون ردیابی.</li>
+        <li>تم و تنظیمات صدا به صورت محلی ذخیره می‌شن.</li>
+        <li>برای تغییر اندازه‌ی کادر متن، دستگیره‌ی گوشه‌ی پایین رو بکشید.</li>
+      </ul>
+    `
+  };
+
   let currentLang = localStorage.getItem('lang') || 'en';
   let t = i18n[currentLang];
 
@@ -724,6 +987,11 @@
     langLabel.textContent = t.switchTo;
     langFlag.textContent = t.switchFlag;
 
+    // اگه مودال راهنما بازه، محتواش رو هم به‌روز کن
+    if (helpModal && helpModal.classList.contains('active')) {
+      renderHelp();
+    }
+
     if (mainUI.classList.contains('active')) {
       const enVoices = voices.filter(v => v.lang.toLowerCase().startsWith('en'));
       if (enVoices.length > 0) setStatus(t.ready(enVoices.length), 'ok');
@@ -750,6 +1018,44 @@
   setTheme(savedTheme ? savedTheme === 'dark' : prefersDark);
   themeBtn.addEventListener('click', () => setTheme(!document.body.classList.contains('dark')));
 
+  // ==========================================================
+  // ===== Help Modal Logic =====
+  // ==========================================================
+  const helpBtn = $('helpBtn');
+  const helpModal = $('helpModal');
+  const helpClose = $('helpClose');
+  const helpTitle = $('helpTitle');
+  const helpBody = $('helpBody');
+
+  function renderHelp() {
+    helpBody.innerHTML = helpContent[currentLang];
+    helpTitle.textContent = currentLang === 'fa' ? '📖 راهنما' : '📖 Help';
+  }
+
+  helpBtn.addEventListener('click', () => {
+    renderHelp();
+    helpModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  });
+
+  function closeHelp() {
+    helpModal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  helpClose.addEventListener('click', closeHelp);
+
+  helpModal.addEventListener('click', (e) => {
+    if (e.target === helpModal) closeHelp();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && helpModal.classList.contains('active')) closeHelp();
+  });
+
+  // ==========================================================
+  // ===== Speech =====
+  // ==========================================================
   const synth = window.speechSynthesis;
   let voices = [];
   let isSpeaking = false;
