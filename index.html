@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f6f8fc" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#202124" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Text Reader">
+<title>Text Reader</title>
+<style>
+  :root {
+    --bg: #f6f8fc;
+    --card: #ffffff;
+    --text: #1f1f1f;
+    --subtext: #5f6368;
+    --primary: #1a73e8;
+    --primary-hover: #1765cc;
+    --danger: #ea4335;
+    --success: #34a853;
+    --warning: #fbbc04;
+    --border: #e0e3e7;
+    --input-bg: #f1f3f4;
+    --shadow: 0 1px 3px rgba(60,64,67,.15), 0 4px 12px rgba(60,64,67,.08);
+    --slider-track: #dadce0;
+    --radius: 16px;
+    --radius-sm: 12px;
+  }
+  body.dark {
+    --bg: #202124;
+    --card: #292a2d;
+    --text: #e8eaed;
+    --subtext: #9aa0a6;
+    --primary: #8ab4f8;
+    --primary-hover: #aecbfa;
+    --danger: #f28b82;
+    --success: #81c995;
+    --warning: #fdd663;
+    --border: #3c4043;
+    --input-bg: #35363a;
+    --shadow: 0 1px 3px rgba(0,0,0,.4), 0 4px 12px rgba(0,0,0,.3);
+    --slider-track: #5f6368;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 32px 16px calc(32px + env(safe-area-inset-bottom));
+    padding-top: calc(32px + env(safe-area-inset-top));
+    transition: background .3s, color .3s;
+    overflow-x: hidden;
+  }
+
+  body.lang-en { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+  body.lang-fa { font-family: Tahoma, 'Segoe UI', -apple-system, 'Iranian Sans', 'Vazirmatn', Arial, sans-serif; }
+
+  body.lang-fa { direction: rtl; text-align: right; }
+  body.lang-en { direction: ltr; text-align: left; }
+
+  .container { width: 100%; max-width: 600px; }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    gap: 12px;
+  }
+  .header h1 {
+    font-size: clamp(19px, 5vw, 22px);
+    font-weight: 600;
+    letter-spacing: .2px;
+    flex: 1;
+  }
+  .header-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .icon-btn {
+    background: var(--input-bg);
+    border: none;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .2s, transform .2s;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .icon-btn:hover { transform: rotate(20deg); }
+  .icon-btn:active { transform: scale(.92); }
+  .icon-btn svg { width: 20px; height: 20px; }
+
+  .lang-btn {
+    background: var(--input-bg);
+    border: none;
+    height: 44px;
+    padding: 0 16px;
+    flex-shrink: 0;
+    border-radius: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    transition: background .2s, transform .1s;
+    font-family: inherit;
+  }
+  .lang-btn:hover { background: var(--border); }
+  .lang-btn:active { transform: scale(.95); }
+  .lang-btn .flag { font-size: 16px; }
+
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 22px;
+    box-shadow: var(--shadow);
+    transition: background .3s, box-shadow .3s;
+  }
+
+  .test-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 40px 16px;
+    text-align: center;
+  }
+  .test-screen.hidden { display: none; }
+  .spinner {
+    width: 44px; height: 44px;
+    border: 4px solid var(--input-bg);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .test-screen .msg {
+    font-size: 15px;
+    color: var(--subtext);
+    line-height: 1.7;
+    max-width: 380px;
+  }
+  .test-icon { font-size: 44px; line-height: 1; }
+
+  .main-ui { display: none; }
+  .main-ui.active { display: block; animation: fadeIn .4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .textarea-wrapper {
+    position: relative;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 140px;
+    padding: 14px 16px 30px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--input-bg);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.6;
+    resize: vertical;
+    outline: none;
+    transition: border-color .2s, background .3s, color .3s;
+    -webkit-appearance: none;
+    font-family: inherit;
+    display: block;
+  }
+  textarea:focus { border-color: var(--primary); }
+  textarea::placeholder { color: var(--subtext); }
+  body.lang-en textarea { direction: ltr; text-align: left; }
+
+  .resize-handle {
+    position: absolute;
+    bottom: 4px;
+    right: 6px;
+    width: 22px;
+    height: 22px;
+    cursor: ns-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--subtext);
+    opacity: .55;
+    transition: opacity .2s, background .2s;
+    border-radius: 6px;
+    touch-action: none;
+    user-select: none;
+    z-index: 2;
+  }
+  body.lang-fa .resize-handle {
+    right: auto;
+    left: 6px;
+  }
+  .resize-handle:hover { opacity: 1; background: var(--border); }
+  .resize-handle svg { width: 14px; height: 14px; }
+  .resize-handle:active { opacity: 1; }
+
+  .voice-select {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .voice-select label {
+    font-size: 13px;
+    color: var(--subtext);
+    font-weight: 500;
+  }
+  select {
+    width: 100%;
+    padding: 12px 40px 12px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background-color: var(--input-bg);
+    color: var(--text);
+    font-size: 15px;
+    outline: none;
+    cursor: pointer;
+    transition: border-color .2s, background .3s, color .3s;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235f6368'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 20px;
+    text-overflow: ellipsis;
+    font-family: inherit;
+    direction: ltr;
+    text-align: left;
+  }
+  body.dark select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239aa0a6'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  }
+  select:focus { border-color: var(--primary); }
+
+  .options-row {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .option-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .option-item label {
+    font-size: 13px;
+    color: var(--subtext);
+    font-weight: 500;
+  }
+  @media (max-width: 480px) {
+    .options-row { grid-template-columns: 1fr; gap: 12px; }
+  }
+
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  button.btn {
+    padding: 13px 12px;
+    border: none;
+    border-radius: 24px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .2s, transform .1s, opacity .2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 48px;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+  button.btn:active { transform: scale(.96); }
+  .btn-primary { background: var(--primary); color: #fff; }
+  body.dark .btn-primary { color: #202124; }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { background: var(--input-bg); }
+  .btn-test { background: var(--success); color: #fff; }
+  .btn-test:hover { opacity: .9; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn:disabled:active { transform: none; }
+
+  .controls {
+    margin-top: 20px;
+    display: none;
+    flex-direction: column;
+    gap: 14px;
+    animation: fadeIn .3s ease;
+  }
+  .controls.active { display: flex; }
+  .control-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 50px;
+    align-items: center;
+    gap: 12px;
+  }
+  .control-row label {
+    font-size: 13px;
+    color: var(--subtext);
+  }
+  .control-row output {
+    font-size: 13px;
+    color: var(--text);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+  }
+  body.lang-fa .control-row output { text-align: left; }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 24px;
+    background: transparent;
+    outline: none;
+    cursor: pointer;
+    margin: 0;
+  }
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--slider-track);
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    margin-top: -7px;
+    transition: transform .15s;
+    box-shadow: 0 1px 3px rgba(0,0,0,.2);
+  }
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+  input[type="range"]::-moz-range-track {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--slider-track);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border: none;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+  }
+  body.lang-fa input[type="range"] { direction: ltr; }
+
+  .icon { width: 18px; height: 18px; flex-shrink: 0; }
+
+  .status {
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--subtext);
+    text-align: center;
+    min-height: 18px;
+    line-height: 1.6;
+    transition: color .2s;
+  }
+  .status.error { color: var(--danger); }
+  .status.ok { color: var(--success); }
+  .status.warn { color: var(--warning); }
+
+  @media (max-width: 480px) {
+    body {
+      padding: 16px 12px calc(16px + env(safe-area-inset-bottom));
+      padding-top: calc(16px + env(safe-area-inset-top));
+    }
+    .card { padding: 18px 16px; border-radius: 14px; }
+    .header { margin-bottom: 14px; gap: 8px; }
+    .icon-btn { width: 40px; height: 40px; }
+    .lang-btn { height: 40px; padding: 0 12px; font-size: 13px; }
+    textarea { min-height: 120px; padding: 12px 14px 28px 14px; }
+    .actions { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .actions .btn-primary { grid-column: 1 / -1; order: -1; }
+    .control-row { grid-template-columns: 78px 1fr 44px; gap: 8px; }
+    .control-row label { font-size: 12px; }
+    .control-row output { font-size: 12px; }
+    button.btn { padding: 12px 10px; font-size: 14px; min-height: 46px; }
+    .btn span.btn-text { display: none; }
+    .actions .btn-primary span.btn-text { display: inline; }
+  }
+
+  @media (max-width: 360px) {
+    .card { padding: 16px 12px; }
+    button.btn { font-size: 13px; padding: 11px 8px; }
+    .lang-btn { padding: 0 10px; }
+  }
+
+  @media (min-width: 900px) {
+    .container { max-width: 640px; }
+    .card { padding: 28px; }
+    textarea { min-height: 180px; }
+  }
+
+  @media (max-height: 500px) and (orientation: landscape) {
+    body { padding-top: 16px; }
+    textarea { min-height: 90px; }
+    .test-screen { padding: 20px 16px; }
+  }
+</style>
+</head>
+<body class="lang-en">
+<div class="container">
+  <div class="header">
+    <h1 id="appTitle">Text Reader</h1>
+    <div class="header-controls">
+      <button class="lang-btn" id="langBtn" title="Change language">
+        <span class="flag" id="langFlag">🇮🇷</span>
+        <span id="langLabel">فارسی</span>
+      </button>
+      <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
+        <svg id="themeIcon" viewBox="0 0 24 24" fill="currentColor"></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+
+    <div class="test-screen" id="testScreen">
+      <div class="spinner" id="testSpinner"></div>
+      <div class="test-icon" id="testIcon" style="display:none;"></div>
+      <div class="msg" id="testMsg"></div>
+    </div>
+
+    <div class="main-ui" id="mainUI">
+
+      <div class="textarea-wrapper">
+        <textarea id="textInput" placeholder="Type or paste your English text here..."></textarea>
+        <div class="resize-handle" id="resizeHandle" title="Drag to resize">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 22H20V20H22V22ZM22 18H20V16H22V18ZM18 22H16V20H18V22ZM22 14H20V12H22V14ZM18 18H16V16H18V18ZM14 22H12V20H14V22ZM22 10H20V8H22V10ZM18 14H16V12H18V14ZM14 18H12V16H14V18ZM10 22H8V20H10V22Z"/></svg>
+        </div>
+      </div>
+
+      <div class="voice-select">
+        <label for="voiceSelect" id="voiceLabel">🎤 Voice</label>
+        <select id="voiceSelect"></select>
+      </div>
+
+      <div class="options-row">
+        <div class="option-item">
+          <label for="repeatSelect" id="repeatLabel">🔁 Repeat</label>
+          <select id="repeatSelect">
+            <option value="1">Off</option>
+            <option value="2">2×</option>
+            <option value="3">3×</option>
+            <option value="4">4×</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="speakBtn">
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          <span class="btn-text" id="startLabel">Start</span>
+        </button>
+        <button class="btn btn-test" id="testBtn">
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+          <span class="btn-text" id="testLabel">Test</span>
+        </button>
+        <button class="btn btn-outline" id="stopBtn" disabled>
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h12v12H6z"/></svg>
+          <span class="btn-text" id="stopLabel">Stop</span>
+        </button>
+      </div>
+
+      <div class="controls" id="controls">
+        <div class="control-row">
+          <label for="volume" id="volumeLabel">🔊 Volume</label>
+          <input type="range" id="volume" min="0" max="1" step="0.05" value="1">
+          <output id="volumeVal">100%</output>
+        </div>
+        <div class="control-row">
+          <label for="rate" id="rateLabel">⚡ Speed</label>
+          <input type="range" id="rate" min="0.5" max="2" step="0.1" value="1">
+          <output id="rateVal">1.0x</output>
+        </div>
+        <div class="control-row">
+          <label for="pitch" id="pitchLabel">🎵 Pitch</label>
+          <input type="range" id="pitch" min="0" max="2" step="0.1" value="1">
+          <output id="pitchVal">1.0</output>
+        </div>
+      </div>
+
+      <div class="status" id="status"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ==========================================================
+  // ===== PWA: manifest و آیکون inline + Service Worker =====
+  // ==========================================================
+  (function injectPWA() {
+    const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+      <rect width="512" height="512" rx="96" fill="#1a73e8"/>
+      <path d="M200 180h112v24H200zM200 232h112v24H200zM200 284h80v24h-80z" fill="#ffffff"/>
+      <circle cx="330" cy="360" r="56" fill="#ffffff"/>
+      <path d="M310 340v40l32-20z" fill="#1a73e8"/>
+    </svg>`;
+
+    const svgDataUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgIcon)));
+
+    const icon192 = document.createElement('link');
+    icon192.rel = 'icon';
+    icon192.type = 'image/svg+xml';
+    icon192.href = svgDataUrl;
+    document.head.appendChild(icon192);
+
+    const appleIcon = document.createElement('link');
+    appleIcon.rel = 'apple-touch-icon';
+    appleIcon.href = svgDataUrl;
+    document.head.appendChild(appleIcon);
+
+    const manifest = {
+      name: 'Text Reader',
+      short_name: 'Reader',
+      description: 'Read English text with adjustable pauses and repetition',
+      start_url: './',
+      scope: './',
+      display: 'standalone',
+      orientation: 'portrait',
+      background_color: '#f6f8fc',
+      theme_color: '#1a73e8',
+      dir: 'auto',
+      lang: 'en',
+      icons: [
+        { src: svgDataUrl, sizes: '192x192', type: 'image/svg+xml', purpose: 'any' },
+        { src: svgDataUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'any' },
+        { src: svgDataUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'maskable' }
+      ]
+    };
+
+    const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+    const manifestUrl = URL.createObjectURL(manifestBlob);
+    const manifestLink = document.createElement('link');
+    manifestLink.rel = 'manifest';
+    manifestLink.href = manifestUrl;
+    document.head.appendChild(manifestLink);
+
+    // ===== ثبت Service Worker از فایل واقعی sw.js =====
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js', { scope: './' })
+          .then(reg => console.log('✓ SW registered. Scope:', reg.scope))
+          .catch(err => console.error('✗ SW registration failed:', err));
+      });
+    }
+  })();
+
+  // ==========================================================
+  // ===== اپلیکیشن اصلی =====
+  // ==========================================================
+  const $ = id => document.getElementById(id);
+  const testScreen = $('testScreen');
+  const testSpinner = $('testSpinner');
+  const testIcon = $('testIcon');
+  const testMsg = $('testMsg');
+  const mainUI = $('mainUI');
+
+  const textInput = $('textInput');
+  const speakBtn = $('speakBtn');
+  const testBtn = $('testBtn');
+  const stopBtn = $('stopBtn');
+  const controls = $('controls');
+  const volume = $('volume'), rate = $('rate'), pitch = $('pitch');
+  const volumeVal = $('volumeVal'), rateVal = $('rateVal'), pitchVal = $('pitchVal');
+  const themeBtn = $('themeBtn'), themeIcon = $('themeIcon');
+  const statusEl = $('status');
+  const voiceSelect = $('voiceSelect');
+  const repeatSelect = $('repeatSelect');
+  const langBtn = $('langBtn');
+  const langFlag = $('langFlag');
+  const langLabel = $('langLabel');
+  const resizeHandle = $('resizeHandle');
+
+  const i18n = {
+    en: {
+      title: 'Text Reader',
+      placeholder: 'Type or paste your English text here...',
+      voice: '🎤 Voice',
+      repeat: '🔁 Repeat',
+      repeatOff: 'Off',
+      repeatTimes: (n) => `${n}×`,
+      start: 'Start',
+      test: 'Test',
+      stop: 'Stop',
+      volume: '🔊 Volume',
+      speed: '⚡ Speed',
+      pitch: '🎵 Pitch',
+      loadingVoices: 'Loading voices from device...',
+      successTitle: (n) => `${n} English voice${n !== 1 ? 's' : ''} found!`,
+      successSub: 'Loading interface...',
+      warnTitle: 'No English voice found',
+      warnSub: (n) => `${n} voice${n !== 1 ? 's' : ''} available, but none are English. Pronunciation may be wrong.`,
+      warnHint: 'Settings → Text-to-Speech → Install English voices',
+      errNoSupport: 'Your browser does not support speech synthesis.<br>Please use Chrome or Edge.',
+      errNoVoices: 'No voices found on this device.<br><br>Please install English voice data from your device settings.',
+      reload: '🔄 Reload Page',
+      ready: (n) => `✓ Ready — ${n} English voice${n !== 1 ? 's' : ''} available`,
+      readyFallback: '⚠ No English voice — using fallback',
+      noVoices: '⚠ No voices available',
+      selected: (lang, name) => `✓ Selected: ${lang} — ${name}`,
+      reading: '🔊 Reading...',
+      readingRepeat: (n) => `🔊 Reading (${n}× repeat)...`,
+      finished: '✓ Finished reading',
+      stopped: '⏹ Stopped',
+      playingTest: '🔉 Playing test...',
+      emptyText: '⚠ Please enter some text',
+      switchTo: 'فارسی',
+      switchFlag: '🇮🇷'
+    },
+    fa: {
+      title: 'خواننده متن',
+      placeholder: 'متن انگلیسی خود را اینجا بنویسید یا بچسبانید...',
+      voice: '🎤 صدا',
+      repeat: '🔁 تکرار',
+      repeatOff: 'خاموش',
+      repeatTimes: (n) => `${n} بار`,
+      start: 'شروع',
+      test: 'تست',
+      stop: 'توقف',
+      volume: '🔊 صدا',
+      speed: '⚡ سرعت',
+      pitch: '🎵 زیر و بمی',
+      loadingVoices: 'در حال بارگذاری صداها...',
+      successTitle: (n) => `${n} صدای انگلیسی پیدا شد!`,
+      successSub: 'در حال بارگذاری رابط...',
+      warnTitle: 'صدای انگلیسی پیدا نشد',
+      warnSub: (n) => `${n} صدا موجوده ولی هیچ‌کدام انگلیسی نیست. تلفظ ممکنه اشتباه باشه.`,
+      warnHint: 'تنظیمات → تبدیل متن به گفتار → نصب صداهای انگلیسی',
+      errNoSupport: 'مرورگر شما از تبدیل متن به گفتار پشتیبانی نمی‌کند.<br>لطفاً از Chrome یا Edge استفاده کنید.',
+      errNoVoices: 'هیچ صدایی روی این دستگاه پیدا نشد.<br><br>لطفاً از تنظیمات دستگاه، صداهای انگلیسی را نصب کنید.',
+      reload: '🔄 بارگذاری مجدد',
+      ready: (n) => `✓ آماده — ${n} صدای انگلیسی موجود`,
+      readyFallback: '⚠ صدای انگلیسی نیست — از صدای پیش‌فرض استفاده می‌شود',
+      noVoices: '⚠ هیچ صدایی موجود نیست',
+      selected: (lang, name) => `✓ انتخاب شد: ${lang} — ${name}`,
+      reading: '🔊 در حال خواندن...',
+      readingRepeat: (n) => `🔊 در حال خواندن (${n} بار تکرار)...`,
+      finished: '✓ خواندن تمام شد',
+      stopped: '⏹ متوقف شد',
+      playingTest: '🔉 در حال پخش تست...',
+      emptyText: '⚠ لطفاً متنی وارد کنید',
+      switchTo: 'English',
+      switchFlag: '🇺🇸'
+    }
+  };
+
+  let currentLang = localStorage.getItem('lang') || 'en';
+  let t = i18n[currentLang];
+
+  function applyLanguage(lang) {
+    currentLang = lang;
+    t = i18n[lang];
+    localStorage.setItem('lang', lang);
+
+    document.body.classList.remove('lang-en', 'lang-fa');
+    document.body.classList.add('lang-' + lang);
+    document.documentElement.lang = lang === 'fa' ? 'fa' : 'en';
+    document.documentElement.dir = lang === 'fa' ? 'rtl' : 'ltr';
+
+    document.title = t.title;
+    $('appTitle').textContent = t.title;
+    $('voiceLabel').textContent = t.voice;
+    $('repeatLabel').textContent = t.repeat;
+    $('startLabel').textContent = t.start;
+    $('testLabel').textContent = t.test;
+    $('stopLabel').textContent = t.stop;
+    $('volumeLabel').textContent = t.volume;
+    $('rateLabel').textContent = t.speed;
+    $('pitchLabel').textContent = t.pitch;
+    textInput.placeholder = t.placeholder;
+
+    const repeatOpts = repeatSelect.options;
+    if (repeatOpts.length >= 4) {
+      repeatOpts[0].textContent = t.repeatOff;
+      repeatOpts[1].textContent = t.repeatTimes(2);
+      repeatOpts[2].textContent = t.repeatTimes(3);
+      repeatOpts[3].textContent = t.repeatTimes(4);
+    }
+
+    langLabel.textContent = t.switchTo;
+    langFlag.textContent = t.switchFlag;
+
+    if (mainUI.classList.contains('active')) {
+      const enVoices = voices.filter(v => v.lang.toLowerCase().startsWith('en'));
+      if (enVoices.length > 0) setStatus(t.ready(enVoices.length), 'ok');
+      else if (voices.length > 0) setStatus(t.readyFallback, 'warn');
+    }
+  }
+
+  langBtn.addEventListener('click', () => {
+    applyLanguage(currentLang === 'en' ? 'fa' : 'en');
+  });
+
+  const sunIcon = '<path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0a.996.996 0 000-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/>';
+  const moonIcon = '<path d="M12 3a9 9 0 109 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 01-4.4 2.26 5.403 5.403 0 01-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/>';
+
+  function setTheme(dark) {
+    document.body.classList.toggle('dark', dark);
+    themeIcon.innerHTML = dark ? sunIcon : moonIcon;
+    localStorage.setItem('theme', dark ? 'dark' : 'light');
+    const meta = document.querySelector('meta[name="theme-color"]:not([media])');
+    if (meta) meta.content = dark ? '#202124' : '#f6f8fc';
+  }
+  const savedTheme = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  setTheme(savedTheme ? savedTheme === 'dark' : prefersDark);
+  themeBtn.addEventListener('click', () => setTheme(!document.body.classList.contains('dark')));
+
+  const synth = window.speechSynthesis;
+  let voices = [];
+  let isSpeaking = false;
+  let queue = [];
+  let currentIndex = 0;
+  let stopRequested = false;
+  let activeTimeout = null;
+
+  const langNames = {
+    'en-us': '🇺🇸 English (US)', 'en-gb': '🇬🇧 English (UK)',
+    'en-au': '🇦🇺 English (Australia)', 'en-ca': '🇨🇦 English (Canada)',
+    'en-in': '🇮🇳 English (India)', 'en-ie': '🇮🇪 English (Ireland)',
+    'en-nz': '🇳🇿 English (New Zealand)', 'en-za': '🇿🇦 English (South Africa)',
+    'en-ng': '🇳🇬 English (Nigeria)', 'en-ke': '🇰🇪 English (Kenya)',
+    'en-ph': '🇵🇭 English (Philippines)', 'en-sg': '🇸🇬 English (Singapore)',
+    'en-hk': '🇭🇰 English (Hong Kong)', 'en-my': '🇲🇾 English (Malaysia)',
+    'en-pk': '🇵🇰 English (Pakistan)', 'en-bd': '🇧🇩 English (Bangladesh)',
+    'en-jm': '🇯🇲 English (Jamaica)', 'en-tt': '🇹🇹 English (Trinidad)'
+  };
+
+  function getLangLabel(lang) {
+    const key = lang.toLowerCase().replace('_', '-');
+    if (langNames[key]) return langNames[key];
+    const parts = key.split('-');
+    if (parts.length >= 2) return `🌐 English (${parts[1].toUpperCase()})`;
+    return `🌐 ${lang}`;
+  }
+
+  function getEnglishVoices() {
+    return voices.filter(v => v.lang.toLowerCase().startsWith('en'));
+  }
+
+  function setStatus(msg, type = '') {
+    statusEl.textContent = msg;
+    statusEl.className = 'status' + (type ? ' ' + type : '');
+  }
+
+  function runInitialTest() {
+    if (!('speechSynthesis' in window)) {
+      showTestError('❌', t.errNoSupport);
+      return;
+    }
+    testMsg.textContent = t.loadingVoices;
+    let attempts = 0;
+    const maxAttempts = 20;
+
+    const tryLoad = () => {
+      attempts++;
+      voices = synth.getVoices();
+      const enVoices = getEnglishVoices();
+      if (enVoices.length > 0) { showTestSuccess(enVoices.length); return; }
+      if (attempts >= maxAttempts) {
+        if (voices.length > 0) showTestWarning(voices.length);
+        else showTestError('⚠️', t.errNoVoices);
+        return;
+      }
+      setTimeout(tryLoad, 250);
+    };
+    tryLoad();
+  }
+
+  function showTestSuccess(enCount) {
+    testSpinner.style.display = 'none';
+    testIcon.style.display = 'block';
+    testIcon.textContent = '✅';
+    testMsg.innerHTML = `<b style="color:var(--success);">${t.successTitle(enCount)}</b><br><span style="font-size:13px;">${t.successSub}</span>`;
+    setTimeout(() => {
+      testScreen.classList.add('hidden');
+      mainUI.classList.add('active');
+      buildVoiceList();
+    }, 600);
+  }
+
+  function showTestWarning(totalCount) {
+    testSpinner.style.display = 'none';
+    testIcon.style.display = 'block';
+    testIcon.textContent = '⚠️';
+    testMsg.innerHTML = `<b style="color:var(--warning);">${t.warnTitle}</b><br>
+      <span style="font-size:13px;">${t.warnSub(totalCount)}</span><br><br>
+      <b style="font-size:13px;">${t.warnHint}</b>`;
+    setTimeout(() => {
+      testScreen.classList.add('hidden');
+      mainUI.classList.add('active');
+      buildVoiceList();
+    }, 1800);
+  }
+
+  function showTestError(icon, msg) {
+    testSpinner.style.display = 'none';
+    testIcon.style.display = 'block';
+    testIcon.textContent = icon;
+    testMsg.innerHTML = msg;
+    const reloadBtn = document.createElement('button');
+    reloadBtn.className = 'btn btn-primary';
+    reloadBtn.style.maxWidth = '200px';
+    reloadBtn.style.marginTop = '16px';
+    reloadBtn.textContent = t.reload;
+    reloadBtn.onclick = () => location.reload();
+    testMsg.appendChild(document.createElement('br'));
+    testMsg.appendChild(reloadBtn);
+  }
+
+  function buildVoiceList() {
+    voices = synth.getVoices();
+    const enVoices = getEnglishVoices();
+    const listToShow = enVoices.length ? enVoices : voices;
+    const prev = localStorage.getItem('voiceURI');
+
+    voiceSelect.innerHTML = '';
+    if (!listToShow.length) {
+      const opt = document.createElement('option');
+      opt.textContent = '—';
+      voiceSelect.appendChild(opt);
+      setStatus(t.noVoices, 'error');
+      speakBtn.disabled = true;
+      return;
+    }
+
+    listToShow.sort((a, b) => {
+      const aUS = a.lang.toLowerCase().startsWith('en-us') ? 0 : 1;
+      const bUS = b.lang.toLowerCase().startsWith('en-us') ? 0 : 1;
+      if (aUS !== bUS) return aUS - bUS;
+      return a.lang.localeCompare(b.lang);
+    });
+
+    listToShow.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v.voiceURI;
+      opt.textContent = `${getLangLabel(v.lang)} — ${v.name}`;
+      if (prev && v.voiceURI === prev) opt.selected = true;
+      voiceSelect.appendChild(opt);
+    });
+
+    if (!voiceSelect.value && listToShow.length) {
+      voiceSelect.selectedIndex = 0;
+      localStorage.setItem('voiceURI', listToShow[0].voiceURI);
+    }
+
+    speakBtn.disabled = false;
+    const enCount = enVoices.length;
+    if (enCount > 0) setStatus(t.ready(enCount), 'ok');
+    else setStatus(t.readyFallback, 'warn');
+  }
+
+  function getSelectedVoice() {
+    const uri = voiceSelect.value;
+    if (!uri) return null;
+    return voices.find(v => v.voiceURI === uri) || null;
+  }
+
+  voiceSelect.addEventListener('change', () => {
+    localStorage.setItem('voiceURI', voiceSelect.value);
+    const v = getSelectedVoice();
+    if (v) setStatus(t.selected(getLangLabel(v.lang), v.name), 'ok');
+    if (isSpeaking) { stop(); setTimeout(speak, 150); }
+  });
+
+  if (synth.onvoiceschanged !== undefined) {
+    synth.onvoiceschanged = () => {
+      if (mainUI.classList.contains('active')) buildVoiceList();
+    };
+  }
+
+  // ==========================================================
+  // ===== مکث نقطه‌ها: هر نقطه = 0.3 ثانیه. سقف کل = 10 ثانیه =====
+  // ==========================================================
+  const MS_PER_DOT = 300;
+  const MAX_PAUSE_MS = 10000;
+  const MAX_DOTS = Math.floor(MAX_PAUSE_MS / MS_PER_DOT);
+
+  function tokenizeText(text) {
+    const normalized = text.replace(/\s+/g, ' ').trim();
+    const tokens = [];
+    let buffer = '';
+    let i = 0;
+
+    while (i < normalized.length) {
+      const ch = normalized[i];
+
+      if (ch === '.') {
+        let dotCount = 0;
+        let j = i;
+        while (j < normalized.length && (normalized[j] === '.' || normalized[j] === ' ')) {
+          if (normalized[j] === '.') dotCount++;
+          j++;
+        }
+        const hasWordAfter = j < normalized.length && /\S/.test(normalized[j]);
+        const hasTextBefore = buffer.trim().length > 0;
+
+        if (hasWordAfter && hasTextBefore && dotCount > 0) {
+          tokens.push({ type: 'text', value: buffer.trim() });
+          buffer = '';
+          const cappedDots = Math.min(dotCount, MAX_DOTS);
+          const pauseMs = Math.min(MS_PER_DOT * cappedDots, MAX_PAUSE_MS);
+          tokens.push({ type: 'pause', ms: pauseMs, dots: cappedDots });
+          i = j;
+          continue;
+        } else {
+          buffer += '.';
+          i++;
+          continue;
+        }
+      }
+      buffer += ch;
+      i++;
+    }
+    if (buffer.trim()) tokens.push({ type: 'text', value: buffer.trim() });
+    return tokens;
+  }
+
+  function buildChunksFromTokens(tokens, repeatCount) {
+    const chunks = [];
+    let currentText = '';
+    let pendingPause = 0;
+    let pendingDots = 0;
+
+    const flush = () => {
+      if (currentText.trim()) {
+        chunks.push({ type: 'speak', text: currentText.trim(), repeat: repeatCount, pauseAfter: pendingPause });
+      } else if (pendingPause > 0) {
+        chunks.push({ type: 'pause', pauseAfter: pendingPause, dots: pendingDots });
+      }
+      currentText = '';
+      pendingPause = 0;
+      pendingDots = 0;
+    };
+
+    for (const tok of tokens) {
+      if (tok.type === 'pause') {
+        if (currentText.trim()) {
+          currentText = currentText.trim();
+          pendingPause += tok.ms;
+          pendingDots += tok.dots;
+          flush();
+        } else {
+          pendingPause += tok.ms;
+          pendingDots += tok.dots;
+        }
+      } else {
+        if ((currentText + ' ' + tok.value).length > 180 && currentText.trim()) flush();
+        currentText += (currentText ? ' ' : '') + tok.value;
+      }
+    }
+    flush();
+    return chunks;
+  }
+
+  function splitText(text, repeatCount) {
+    return buildChunksFromTokens(tokenizeText(text), repeatCount);
+  }
+
+  function updateControls() {
+    volumeVal.textContent = Math.round(volume.value * 100) + '%';
+    rateVal.textContent = parseFloat(rate.value).toFixed(1) + 'x';
+    pitchVal.textContent = parseFloat(pitch.value).toFixed(1);
+  }
+  volume.addEventListener('input', updateControls);
+  rate.addEventListener('input', updateControls);
+  pitch.addEventListener('input', updateControls);
+
+  function clearActiveTimeout() {
+    if (activeTimeout) { clearTimeout(activeTimeout); activeTimeout = null; }
+  }
+
+  let currentRepeatIndex = 0;
+
+  function speakNext() {
+    if (stopRequested) return;
+    if (currentIndex >= queue.length) { finishSpeaking(); return; }
+
+    const chunk = queue[currentIndex];
+
+    if (chunk.type === 'pause') {
+      const voice = getSelectedVoice();
+      const u = new SpeechSynthesisUtterance('.');
+      if (voice) { u.voice = voice; u.lang = voice.lang; }
+      else u.lang = 'en-US';
+      u.volume = 0; u.rate = 1; u.pitch = 1;
+
+      let advanced = false;
+      const advance = () => {
+        if (advanced || stopRequested) return;
+        advanced = true;
+        clearActiveTimeout();
+        currentIndex++;
+        speakNext();
+      };
+      u.onend = () => { activeTimeout = setTimeout(advance, chunk.pauseAfter); };
+      u.onerror = () => { activeTimeout = setTimeout(advance, chunk.pauseAfter); };
+      activeTimeout = setTimeout(advance, chunk.pauseAfter + 1500);
+      synth.speak(u);
+      return;
+    }
+
+    const totalRepeats = chunk.repeat || 1;
+    const u = new SpeechSynthesisUtterance(chunk.text);
+    const voice = getSelectedVoice();
+    if (voice) { u.voice = voice; u.lang = voice.lang; }
+    else u.lang = 'en-US';
+    u.volume = parseFloat(volume.value);
+    u.rate = parseFloat(rate.value);
+    u.pitch = parseFloat(pitch.value);
+
+    let advanced = false;
+    const advance = () => {
+      if (advanced || stopRequested) return;
+      advanced = true;
+      clearActiveTimeout();
+      currentRepeatIndex++;
+      if (currentRepeatIndex < totalRepeats) {
+        activeTimeout = setTimeout(() => { if (!stopRequested) speakNext(); }, 120);
+      } else {
+        currentRepeatIndex = 0;
+        currentIndex++;
+        if (chunk.pauseAfter && chunk.pauseAfter > 0) {
+          activeTimeout = setTimeout(() => { if (!stopRequested) speakNext(); }, chunk.pauseAfter);
+        } else {
+          speakNext();
+        }
+      }
+    };
+    u.onend = advance;
+    u.onerror = (e) => { console.error('Speech error', e); advance(); };
+    synth.speak(u);
+  }
+
+  function finishSpeaking() {
+    isSpeaking = false;
+    speakBtn.disabled = false;
+    stopBtn.disabled = true;
+    currentRepeatIndex = 0;
+    setStatus(t.finished, 'ok');
+  }
+
+  function speak() {
+    const text = textInput.value.trim();
+    if (!text) {
+      textInput.focus();
+      textInput.style.borderColor = '#ea4335';
+      setTimeout(() => textInput.style.borderColor = '', 800);
+      setStatus(t.emptyText, 'error');
+      return;
+    }
+    if (synth.speaking || synth.pending) synth.cancel();
+    clearActiveTimeout();
+    if (!voices.length) voices = synth.getVoices();
+
+    const repeatCount = parseInt(repeatSelect.value, 10) || 1;
+    queue = splitText(text, repeatCount);
+    currentIndex = 0;
+    currentRepeatIndex = 0;
+    isSpeaking = true;
+    stopRequested = false;
+
+    speakBtn.disabled = true;
+    stopBtn.disabled = false;
+    controls.classList.add('active');
+
+    if (repeatCount > 1) setStatus(t.readingRepeat(repeatCount));
+    else setStatus(t.reading);
+
+    activeTimeout = setTimeout(speakNext, 100);
+  }
+
+  function stop() {
+    stopRequested = true;
+    clearActiveTimeout();
+    synth.cancel();
+    isSpeaking = false;
+    currentIndex = 0;
+    currentRepeatIndex = 0;
+    queue = [];
+    speakBtn.disabled = false;
+    stopBtn.disabled = true;
+    setStatus(t.stopped);
+  }
+
+  speakBtn.addEventListener('click', speak);
+  stopBtn.addEventListener('click', stop);
+
+  testBtn.addEventListener('click', () => {
+    synth.cancel();
+    clearActiveTimeout();
+    const u = new SpeechSynthesisUtterance('Hello, this is a test of the selected voice.');
+    const voice = getSelectedVoice();
+    if (voice) { u.voice = voice; u.lang = voice.lang; }
+    u.volume = parseFloat(volume.value);
+    u.rate = parseFloat(rate.value);
+    u.pitch = parseFloat(pitch.value);
+    synth.speak(u);
+    setStatus(t.playingTest);
+  });
+
+  textInput.addEventListener('input', () => { if (isSpeaking) stop(); });
+
+  (function setupResize() {
+    let startY = 0, startHeight = 0, dragging = false;
+
+    const onStart = (clientY) => {
+      dragging = true;
+      startY = clientY;
+      startHeight = textInput.offsetHeight;
+      document.body.style.userSelect = 'none';
+    };
+    const onMove = (clientY) => {
+      if (!dragging) return;
+      const delta = clientY - startY;
+      const newHeight = Math.max(70, Math.min(startHeight + delta, window.innerHeight * 0.85));
+      textInput.style.height = newHeight + 'px';
+    };
+    const onEnd = () => {
+      dragging = false;
+      document.body.style.userSelect = '';
+    };
+
+    resizeHandle.addEventListener('mousedown', (e) => { e.preventDefault(); onStart(e.clientY); });
+    window.addEventListener('mousemove', (e) => { if (dragging) onMove(e.clientY); });
+    window.addEventListener('mouseup', onEnd);
+
+    resizeHandle.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      onStart(touch.clientY);
+    }, { passive: false });
+    window.addEventListener('touchmove', (e) => {
+      if (!dragging) return;
+      const touch = e.touches[0];
+      onMove(touch.clientY);
+    }, { passive: true });
+    window.addEventListener('touchend', onEnd);
+    window.addEventListener('touchcancel', onEnd);
+  })();
+
+  window.addEventListener('beforeunload', () => synth.cancel());
+
+  applyLanguage(currentLang);
+  updateControls();
+  runInitialTest();
+</script>
+</body>
+</html>
