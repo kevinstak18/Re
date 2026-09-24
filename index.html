@@ -196,7 +196,8 @@
   }
   textarea:focus { border-color: var(--primary); }
   textarea::placeholder { color: var(--subtext); }
-  body.lang-en textarea { direction: ltr; text-align: left; }
+  textarea[dir="ltr"] { direction: ltr; text-align: left; }
+  textarea[dir="rtl"] { direction: rtl; text-align: right; }
 
   .resize-handle {
     position: absolute;
@@ -416,13 +417,8 @@
     backdrop-filter: blur(4px);
     animation: modalFadeIn .2s ease;
   }
-  .modal-overlay.active {
-    display: flex;
-  }
-  @keyframes modalFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
+  .modal-overlay.active { display: flex; }
+  @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
 
   .modal-box {
     background: var(--card);
@@ -491,18 +487,9 @@
     gap: 6px;
   }
   .modal-body h3:first-child { margin-top: 0; }
-  .modal-body p {
-    margin: 6px 0;
-    color: var(--text);
-  }
-  .modal-body ul {
-    margin: 6px 0;
-    padding-inline-start: 20px;
-  }
-  .modal-body li {
-    margin: 4px 0;
-    color: var(--text);
-  }
+  .modal-body p { margin: 6px 0; color: var(--text); }
+  .modal-body ul { margin: 6px 0; padding-inline-start: 20px; }
+  .modal-body li { margin: 4px 0; color: var(--text); }
   .modal-body code {
     background: var(--input-bg);
     padding: 2px 6px;
@@ -520,16 +507,11 @@
     margin: 10px 0;
     font-size: 13px;
   }
-  .modal-body .tip.warn {
-    border-inline-start-color: var(--warning);
-  }
-  .modal-body .tip.success {
-    border-inline-start-color: var(--success);
-  }
-  .modal-body ol {
-    padding-inline-start: 20px;
-    margin: 6px 0;
-  }
+  .modal-body .tip.warn { border-inline-start-color: var(--warning); }
+  .modal-body .tip.success { border-inline-start-color: var(--success); }
+  .modal-body ol { padding-inline-start: 20px; margin: 6px 0; }
+  .modal-body a { color: var(--primary); text-decoration: none; }
+  .modal-body a:hover { text-decoration: underline; }
 
   @media (max-width: 480px) {
     .modal-box { max-height: 90vh; border-radius: 14px; }
@@ -607,7 +589,7 @@
     <div class="main-ui" id="mainUI">
 
       <div class="textarea-wrapper">
-        <textarea id="textInput" placeholder="Type or paste your English text here..."></textarea>
+        <textarea id="textInput" placeholder="Type or paste your text here..." dir="auto"></textarea>
         <div class="resize-handle" id="resizeHandle" title="Drag to resize">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 22H20V20H22V22ZM22 18H20V16H22V18ZM18 22H16V20H18V22ZM22 14H20V12H22V14ZM18 18H16V16H18V18ZM14 22H12V20H14V22ZM22 10H20V8H22V10ZM18 14H16V12H18V14ZM14 18H12V16H14V18ZM10 22H8V20H10V22Z"/></svg>
         </div>
@@ -710,7 +692,7 @@
     const manifest = {
       name: 'Text Reader',
       short_name: 'Reader',
-      description: 'Read English text with adjustable pauses and repetition',
+      description: 'Read text with adjustable pauses and repetition. Supports English & Persian.',
       start_url: './',
       scope: './',
       display: 'standalone',
@@ -771,7 +753,7 @@
   const i18n = {
     en: {
       title: 'Text Reader',
-      placeholder: 'Type or paste your English text here...',
+      placeholder: 'Type or paste your text here...',
       voice: '🎤 Voice',
       repeat: '🔁 Repeat',
       repeatOff: 'Off',
@@ -783,16 +765,16 @@
       speed: '⚡ Speed',
       pitch: '🎵 Pitch',
       loadingVoices: 'Loading voices from device...',
-      successTitle: (n) => `${n} English voice${n !== 1 ? 's' : ''} found!`,
+      successTitle: (n) => `${n} voice${n !== 1 ? 's' : ''} found!`,
       successSub: 'Loading interface...',
-      warnTitle: 'No English voice found',
-      warnSub: (n) => `${n} voice${n !== 1 ? 's' : ''} available, but none are English. Pronunciation may be wrong.`,
-      warnHint: 'Settings → Text-to-Speech → Install English voices',
+      warnTitle: 'No voice found',
+      warnSub: (n) => `${n} voice${n !== 1 ? 's' : ''} available.`,
+      warnHint: 'Install voices from device settings',
       errNoSupport: 'Your browser does not support speech synthesis.<br>Please use Chrome or Edge.',
-      errNoVoices: 'No voices found on this device.<br><br>Please install English voice data from your device settings.',
+      errNoVoices: 'No voices found on this device.<br><br>Please install voice data from your device settings.',
       reload: '🔄 Reload Page',
-      ready: (n) => `✓ Ready — ${n} English voice${n !== 1 ? 's' : ''} available`,
-      readyFallback: '⚠ No English voice — using fallback',
+      ready: (n) => `✓ Ready — ${n} voice${n !== 1 ? 's' : ''} available`,
+      readyFallback: '⚠ No compatible voice — using fallback',
       noVoices: '⚠ No voices available',
       selected: (lang, name) => `✓ Selected: ${lang} — ${name}`,
       reading: '🔊 Reading...',
@@ -806,7 +788,7 @@
     },
     fa: {
       title: 'خواننده متن',
-      placeholder: 'متن انگلیسی خود را اینجا بنویسید یا بچسبانید...',
+      placeholder: 'متن خود را اینجا بنویسید یا بچسبانید...',
       voice: '🎤 صدا',
       repeat: '🔁 تکرار',
       repeatOff: 'خاموش',
@@ -818,16 +800,16 @@
       speed: '⚡ سرعت',
       pitch: '🎵 زیر و بمی',
       loadingVoices: 'در حال بارگذاری صداها...',
-      successTitle: (n) => `${n} صدای انگلیسی پیدا شد!`,
+      successTitle: (n) => `${n} صدا پیدا شد!`,
       successSub: 'در حال بارگذاری رابط...',
-      warnTitle: 'صدای انگلیسی پیدا نشد',
-      warnSub: (n) => `${n} صدا موجوده ولی هیچ‌کدام انگلیسی نیست. تلفظ ممکنه اشتباه باشه.`,
-      warnHint: 'تنظیمات → تبدیل متن به گفتار → نصب صداهای انگلیسی',
+      warnTitle: 'صدایی پیدا نشد',
+      warnSub: (n) => `${n} صدا موجود است.`,
+      warnHint: 'از تنظیمات دستگاه، صدا نصب کنید',
       errNoSupport: 'مرورگر شما از تبدیل متن به گفتار پشتیبانی نمی‌کند.<br>لطفاً از Chrome یا Edge استفاده کنید.',
-      errNoVoices: 'هیچ صدایی روی این دستگاه پیدا نشد.<br><br>لطفاً از تنظیمات دستگاه، صداهای انگلیسی را نصب کنید.',
+      errNoVoices: 'هیچ صدایی روی این دستگاه پیدا نشد.<br><br>لطفاً از تنظیمات دستگاه، داده‌های صدا را نصب کنید.',
       reload: '🔄 بارگذاری مجدد',
-      ready: (n) => `✓ آماده — ${n} صدای انگلیسی موجود`,
-      readyFallback: '⚠ صدای انگلیسی نیست — از صدای پیش‌فرض استفاده می‌شود',
+      ready: (n) => `✓ آماده — ${n} صدا موجود`,
+      readyFallback: '⚠ صدای مناسب نیست — از صدای پیش‌فرض استفاده می‌شود',
       noVoices: '⚠ هیچ صدایی موجود نیست',
       selected: (lang, name) => `✓ انتخاب شد: ${lang} — ${name}`,
       reading: '🔊 در حال خواندن...',
@@ -841,18 +823,18 @@
     }
   };
 
-  // ==========================================================
-  // ===== Help content =====
-  // ==========================================================
   const helpContent = {
     en: `
       <h3>🚀 Quick Start</h3>
       <ul>
-        <li>Type or paste your English text in the box.</li>
+        <li>Type or paste your text in the box.</li>
         <li>Choose a voice from the dropdown.</li>
         <li>Hit <b>Start</b> to begin reading.</li>
         <li>Use <b>Stop</b> to cancel anytime.</li>
       </ul>
+
+      <h3>🌐 Auto Language Detection</h3>
+      <p>The app automatically detects whether your text is <b>English</b> or <b>Persian</b>, and picks the right voice — even for mixed text!</p>
 
       <h3>⏸ Custom Pauses with Dots</h3>
       <p>Put dots between words to create pauses. Each dot = <b>0.3 seconds</b> pause (max 10s).</p>
@@ -868,9 +850,6 @@
       <h3>🔁 Repeat Mode</h3>
       <p>Use the Repeat dropdown to hear each phrase 2×, 3× or 4× before moving on. Great for language learning!</p>
 
-      <h3>🎚 Volume, Speed &amp; Pitch</h3>
-      <p>These sliders appear after you press <b>Start</b> once. Adjust them for the perfect listening experience.</p>
-
       <h3>📱 Install on Android</h3>
       <ol>
         <li>Open this page in <b>Chrome</b> on Android.</li>
@@ -882,13 +861,19 @@
         ✅ After installation, the app works completely offline — no internet needed.
       </div>
 
-      <h3>🔊 No Voice Found?</h3>
-      <p>Install English voices on your device:</p>
-      <ul>
-        <li><b>Android:</b> Settings → Language &amp; input → Text-to-Speech → Install voice data</li>
-        <li><b>Windows:</b> Settings → Time &amp; Language → Speech → Add voices</li>
-        <li><b>iOS/Mac:</b> Settings → Accessibility → Spoken Content → Voices</li>
-      </ul>
+      <h3>🔊 Persian Voice Not Working?</h3>
+      <p>Google TTS doesn't include Persian by default. To enable Persian voices:</p>
+      <ol>
+        <li>Install <b>BookFusion Voice</b> from Google Play:<br>
+            <a href="https://play.google.com/store/apps/details?id=com.bookfusion.voice" target="_blank">play.google.com/store/apps/details?id=com.bookfusion.voice</a></li>
+        <li>Open the app → select <b>Farsi</b> → <b>Download</b> a voice.</li>
+        <li>Go to <b>Settings</b> → <b>Languages &amp; input</b> → <b>Text-to-speech output</b>.</li>
+        <li>Set <b>Preferred engine</b> to <b>BookFusion Voice</b>.</li>
+        <li>Come back here and refresh the page.</li>
+      </ol>
+      <div class="tip">
+        💡 Alternative: <b>SherpaTTS</b> (open source) also supports Persian.
+      </div>
 
       <h3>❓ Tips</h3>
       <ul>
@@ -900,53 +885,59 @@
     fa: `
       <h3>🚀 شروع سریع</h3>
       <ul>
-        <li>متن انگلیسی خود را در کادر بنویسید یا بچسبانید.</li>
+        <li>متن خود را در کادر بنویسید یا بچسبانید.</li>
         <li>از منوی کشویی یک صدا انتخاب کنید.</li>
         <li>دکمه‌ی <b>شروع</b> را بزنید.</li>
         <li>هر وقت خواستید متوقف کنید، <b>توقف</b> را بزنید.</li>
       </ul>
 
+      <h3>🌐 تشخیص خودکار زبان</h3>
+      <p>اپ به‌صورت خودکار تشخیص می‌دهد که متن شما <b>انگلیسی</b> است یا <b>فارسی</b>، و صدای مناسب را انتخاب می‌کند — حتی برای متن‌های ترکیبی!</p>
+
       <h3>⏸ مکث دلخواه با نقطه</h3>
       <p>بین کلمات نقطه بگذارید تا مکث ایجاد شود. هر نقطه = <b>۰.۳ ثانیه</b> مکث (حداکثر ۱۰ ثانیه).</p>
       <ul>
-        <li><code>hello. world</code> → ۰.۳ ثانیه مکث</li>
-        <li><code>hello.. world</code> → ۰.۶ ثانیه مکث</li>
-        <li><code>hello... world</code> → ۰.۹ ثانیه مکث</li>
+        <li><code>hello. world</code> → ۰.۳ ثانیه</li>
+        <li><code>hello.. world</code> → ۰.۶ ثانیه</li>
+        <li><code>hello... world</code> → ۰.۹ ثانیه</li>
       </ul>
       <div class="tip">
-        💡 فقط نقطه‌های <b>بین کلمات</b> به‌عنوان مکث در نظر گرفته می‌شن. نقطه‌های انتهای جمله نادیده گرفته می‌شن.
+        💡 فقط نقطه‌های <b>بین کلمات</b> به‌عنوان مکث در نظر گرفته می‌شن.
       </div>
 
       <h3>🔁 حالت تکرار</h3>
-      <p>از منوی کشویی تکرار استفاده کنید تا هر عبارت ۲، ۳ یا ۴ بار خونده بشه. برای یادگیری زبان عالیه!</p>
-
-      <h3>🎚 صدا، سرعت و زیر و بمی</h3>
-      <p>این اسلایدرها بعد از اولین بار زدن <b>شروع</b> ظاهر می‌شن. تنظیمشون کنید تا تجربه‌ی شنیداری بهتری داشته باشید.</p>
+      <p>هر عبارت ۲، ۳ یا ۴ بار خونده بشه. برای یادگیری زبان عالیه!</p>
 
       <h3>📱 نصب روی اندروید</h3>
       <ol>
-        <li>این صفحه رو با مرورگر <b>Chrome</b> روی اندروید باز کنید.</li>
-        <li>حدود ۱۰ ثانیه صبر کنید تا تنظیمات کامل بشه.</li>
-        <li>روی منوی <b>⋮</b> بزنید → <b>نصب اپلیکیشن</b> (یا «افزودن به صفحه اصلی»).</li>
-        <li>از آیکون صفحه اصلی بازش کنید — کاملاً آفلاین کار می‌کنه!</li>
+        <li>این صفحه رو با <b>Chrome</b> باز کنید.</li>
+        <li>حدود ۱۰ ثانیه صبر کنید.</li>
+        <li>منوی <b>⋮</b> → <b>نصب اپلیکیشن</b>.</li>
+        <li>از آیکون صفحه اصلی بازش کنید — کاملاً آفلاین!</li>
       </ol>
       <div class="tip success">
-        ✅ بعد از نصب، اپ کاملاً آفلاین کار می‌کنه — نیازی به اینترنت نیست.
+        ✅ بعد از نصب، کاملاً آفلاین کار می‌کنه.
       </div>
 
-      <h3>🔊 صدای انگلیسی پیدا نمی‌شه؟</h3>
-      <p>صدای انگلیسی روی دستگاه نصب کنید:</p>
-      <ul>
-        <li><b>اندروید:</b> تنظیمات → زبان و ورودی → تبدیل متن به گفتار → نصب داده‌های صدا</li>
-        <li><b>ویندوز:</b> تنظیمات → زمان و زبان → گفتار → افزودن صداها</li>
-        <li><b>iOS/Mac:</b> تنظیمات → دسترس‌پذیری → محتوای گفتاری → صداها</li>
-      </ul>
+      <h3>🔊 صدای فارسی کار نمی‌کنه؟</h3>
+      <p>موتور TTS پیش‌فرض گوگل فارسی رو نداره. برای فعال‌سازی:</p>
+      <ol>
+        <li>اپ <b>BookFusion Voice</b> رو از گوگل پلی نصب کنید:<br>
+            <a href="https://play.google.com/store/apps/details?id=com.bookfusion.voice" target="_blank">play.google.com/store/apps/details?id=com.bookfusion.voice</a></li>
+        <li>اپ رو باز کنید → <b>Farsi</b> → <b>Download</b>.</li>
+        <li>برو به <b>تنظیمات</b> → <b>زبان و ورودی</b> → <b>تبدیل متن به گفتار</b>.</li>
+        <li>موتور پیش‌فرض رو بذار روی <b>BookFusion Voice</b>.</li>
+        <li>به اینجا برگرد و صفحه رو رفرش کن.</li>
+      </ol>
+      <div class="tip">
+        💡 جایگزین: <b>SherpaTTS</b> (متن‌باز) هم فارسی رو پشتیبانی می‌کنه.
+      </div>
 
       <h3>❓ نکات</h3>
       <ul>
         <li>متن شما فقط در مرورگر ذخیره می‌شه — بدون سرور، بدون ردیابی.</li>
-        <li>تم و تنظیمات صدا به صورت محلی ذخیره می‌شن.</li>
-        <li>برای تغییر اندازه‌ی کادر متن، دستگیره‌ی گوشه‌ی پایین رو بکشید.</li>
+        <li>تم و تنظیمات صدا محلی ذخیره می‌شن.</li>
+        <li>برای تغییر اندازه‌ی کادر، دستگیره‌ی گوشه رو بکشید.</li>
       </ul>
     `
   };
@@ -987,15 +978,12 @@
     langLabel.textContent = t.switchTo;
     langFlag.textContent = t.switchFlag;
 
-    // اگه مودال راهنما بازه، محتواش رو هم به‌روز کن
     if (helpModal && helpModal.classList.contains('active')) {
       renderHelp();
     }
 
     if (mainUI.classList.contains('active')) {
-      const enVoices = voices.filter(v => v.lang.toLowerCase().startsWith('en'));
-      if (enVoices.length > 0) setStatus(t.ready(enVoices.length), 'ok');
-      else if (voices.length > 0) setStatus(t.readyFallback, 'warn');
+      updateReadyStatus();
     }
   }
 
@@ -1019,7 +1007,7 @@
   themeBtn.addEventListener('click', () => setTheme(!document.body.classList.contains('dark')));
 
   // ==========================================================
-  // ===== Help Modal Logic =====
+  // ===== Help Modal =====
   // ==========================================================
   const helpBtn = $('helpBtn');
   const helpModal = $('helpModal');
@@ -1073,14 +1061,19 @@
     'en-ph': '🇵🇭 English (Philippines)', 'en-sg': '🇸🇬 English (Singapore)',
     'en-hk': '🇭🇰 English (Hong Kong)', 'en-my': '🇲🇾 English (Malaysia)',
     'en-pk': '🇵🇰 English (Pakistan)', 'en-bd': '🇧🇩 English (Bangladesh)',
-    'en-jm': '🇯🇲 English (Jamaica)', 'en-tt': '🇹🇹 English (Trinidad)'
+    'en-jm': '🇯🇲 English (Jamaica)', 'en-tt': '🇹🇹 English (Trinidad)',
+    'fa-ir': '🇮🇷 فارسی (Iran)', 'fa-af': '🇦🇫 فارسی (Afghanistan)',
+    'fa': '🇮🇷 فارسی',
+    'pe': '🇮🇷 فارسی', 'pes': '🇮🇷 فارسی'
   };
 
   function getLangLabel(lang) {
     const key = lang.toLowerCase().replace('_', '-');
     if (langNames[key]) return langNames[key];
+    if (key.startsWith('fa')) return `🇮🇷 فارسی (${key.split('-')[1] ? key.split('-')[1].toUpperCase() : 'IR'})`;
+    if (key.startsWith('pe')) return '🇮🇷 فارسی';
     const parts = key.split('-');
-    if (parts.length >= 2) return `🌐 English (${parts[1].toUpperCase()})`;
+    if (parts.length >= 2) return `🌐 ${parts[0].toUpperCase()} (${parts[1].toUpperCase()})`;
     return `🌐 ${lang}`;
   }
 
@@ -1088,9 +1081,61 @@
     return voices.filter(v => v.lang.toLowerCase().startsWith('en'));
   }
 
+  function getPersianVoices() {
+    return voices.filter(v => {
+      const l = v.lang.toLowerCase();
+      return l.startsWith('fa') || l.startsWith('pe');
+    });
+  }
+
+  function getSupportedVoices() {
+    return voices.filter(v => {
+      const l = v.lang.toLowerCase();
+      return l.startsWith('en') || l.startsWith('fa') || l.startsWith('pe');
+    });
+  }
+
+  // تشخیص خودکار زبان متن
+  function detectLanguage(text) {
+    const persianRegex = /[\u0600-\u06FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
+    return persianRegex.test(text) ? 'fa' : 'en';
+  }
+
+  // پیدا کردن بهترین صدا برای یه زبان
+  function findVoiceForLanguage(lang, preferredVoice) {
+    if (preferredVoice) {
+      const pLang = preferredVoice.lang.toLowerCase();
+      if (lang === 'fa' && (pLang.startsWith('fa') || pLang.startsWith('pe'))) return preferredVoice;
+      if (lang === 'en' && pLang.startsWith('en')) return preferredVoice;
+    }
+    if (lang === 'fa') {
+      const faVoices = getPersianVoices();
+      return faVoices.length > 0 ? faVoices[0] : null;
+    }
+    const enVoices = getEnglishVoices();
+    const us = enVoices.find(v => v.lang.toLowerCase().startsWith('en-us'));
+    return us || enVoices[0] || null;
+  }
+
   function setStatus(msg, type = '') {
     statusEl.textContent = msg;
     statusEl.className = 'status' + (type ? ' ' + type : '');
+  }
+
+  function updateReadyStatus() {
+    const enCount = getEnglishVoices().length;
+    const faCount = getPersianVoices().length;
+    if (enCount > 0 && faCount > 0) {
+      setStatus(`✓ EN: ${enCount} | FA: ${faCount}`, 'ok');
+    } else if (enCount > 0) {
+      setStatus(t.ready(enCount), 'ok');
+    } else if (faCount > 0) {
+      setStatus(`✓ FA: ${faCount}`, 'ok');
+    } else if (voices.length > 0) {
+      setStatus(t.readyFallback, 'warn');
+    } else {
+      setStatus(t.noVoices, 'error');
+    }
   }
 
   function runInitialTest() {
@@ -1106,7 +1151,12 @@
       attempts++;
       voices = synth.getVoices();
       const enVoices = getEnglishVoices();
-      if (enVoices.length > 0) { showTestSuccess(enVoices.length); return; }
+      const faVoices = getPersianVoices();
+
+      if (enVoices.length > 0 || faVoices.length > 0) {
+        showTestSuccess(enVoices.length + faVoices.length);
+        return;
+      }
       if (attempts >= maxAttempts) {
         if (voices.length > 0) showTestWarning(voices.length);
         else showTestError('⚠️', t.errNoVoices);
@@ -1117,11 +1167,11 @@
     tryLoad();
   }
 
-  function showTestSuccess(enCount) {
+  function showTestSuccess(count) {
     testSpinner.style.display = 'none';
     testIcon.style.display = 'block';
     testIcon.textContent = '✅';
-    testMsg.innerHTML = `<b style="color:var(--success);">${t.successTitle(enCount)}</b><br><span style="font-size:13px;">${t.successSub}</span>`;
+    testMsg.innerHTML = `<b style="color:var(--success);">${t.successTitle(count)}</b><br><span style="font-size:13px;">${t.successSub}</span>`;
     setTimeout(() => {
       testScreen.classList.add('hidden');
       mainUI.classList.add('active');
@@ -1160,8 +1210,8 @@
 
   function buildVoiceList() {
     voices = synth.getVoices();
-    const enVoices = getEnglishVoices();
-    const listToShow = enVoices.length ? enVoices : voices;
+    const supported = getSupportedVoices();
+    const listToShow = supported.length ? supported : voices;
     const prev = localStorage.getItem('voiceURI');
 
     voiceSelect.innerHTML = '';
@@ -1174,10 +1224,18 @@
       return;
     }
 
+    // مرتب‌سازی: EN-US, EN-*, FA
     listToShow.sort((a, b) => {
-      const aUS = a.lang.toLowerCase().startsWith('en-us') ? 0 : 1;
-      const bUS = b.lang.toLowerCase().startsWith('en-us') ? 0 : 1;
-      if (aUS !== bUS) return aUS - bUS;
+      const aL = a.lang.toLowerCase();
+      const bL = b.lang.toLowerCase();
+      const rank = (l) => {
+        if (l.startsWith('en-us')) return 0;
+        if (l.startsWith('en')) return 1;
+        if (l.startsWith('fa') || l.startsWith('pe')) return 2;
+        return 3;
+      };
+      const r = rank(aL) - rank(bL);
+      if (r !== 0) return r;
       return a.lang.localeCompare(b.lang);
     });
 
@@ -1195,9 +1253,7 @@
     }
 
     speakBtn.disabled = false;
-    const enCount = enVoices.length;
-    if (enCount > 0) setStatus(t.ready(enCount), 'ok');
-    else setStatus(t.readyFallback, 'warn');
+    updateReadyStatus();
   }
 
   function getSelectedVoice() {
@@ -1220,7 +1276,7 @@
   }
 
   // ==========================================================
-  // ===== مکث نقطه‌ها: هر نقطه = 0.3 ثانیه. سقف کل = 10 ثانیه =====
+  // ===== مکث نقطه‌ها: هر نقطه = 0.3 ثانیه. سقف = 10 ثانیه =====
   // ==========================================================
   const MS_PER_DOT = 300;
   const MAX_PAUSE_MS = 10000;
@@ -1235,11 +1291,11 @@
     while (i < normalized.length) {
       const ch = normalized[i];
 
-      if (ch === '.') {
+      if (ch === '.' || ch === '۔' || ch === '·') {
         let dotCount = 0;
         let j = i;
-        while (j < normalized.length && (normalized[j] === '.' || normalized[j] === ' ')) {
-          if (normalized[j] === '.') dotCount++;
+        while (j < normalized.length && (normalized[j] === '.' || normalized[j] === '۔' || normalized[j] === '·' || normalized[j] === ' ')) {
+          if (normalized[j] === '.' || normalized[j] === '۔' || normalized[j] === '·') dotCount++;
           j++;
         }
         const hasWordAfter = j < normalized.length && /\S/.test(normalized[j]);
@@ -1328,6 +1384,7 @@
 
     const chunk = queue[currentIndex];
 
+    // ===== chunk نوع مکث =====
     if (chunk.type === 'pause') {
       const voice = getSelectedVoice();
       const u = new SpeechSynthesisUtterance('.');
@@ -1350,11 +1407,23 @@
       return;
     }
 
+    // ===== chunk نوع صحبت =====
     const totalRepeats = chunk.repeat || 1;
+
+    // 🎯 تشخیص خودکار زبان
+    const detectedLang = detectLanguage(chunk.text);
+    const preferredVoice = getSelectedVoice();
+    const voice = findVoiceForLanguage(detectedLang, preferredVoice);
+
     const u = new SpeechSynthesisUtterance(chunk.text);
-    const voice = getSelectedVoice();
-    if (voice) { u.voice = voice; u.lang = voice.lang; }
-    else u.lang = 'en-US';
+
+    if (voice) {
+      u.voice = voice;
+      u.lang = voice.lang;
+    } else {
+      u.lang = detectedLang === 'fa' ? 'fa-IR' : 'en-US';
+    }
+
     u.volume = parseFloat(volume.value);
     u.rate = parseFloat(rate.value);
     u.pitch = parseFloat(pitch.value);
@@ -1403,6 +1472,10 @@
     clearActiveTimeout();
     if (!voices.length) voices = synth.getVoices();
 
+    // تنظیم خودکار جهت متن
+    const wholeLang = detectLanguage(text);
+    textInput.dir = wholeLang === 'fa' ? 'rtl' : 'ltr';
+
     const repeatCount = parseInt(repeatSelect.value, 10) || 1;
     queue = splitText(text, repeatCount);
     currentIndex = 0;
@@ -1449,7 +1522,14 @@
     setStatus(t.playingTest);
   });
 
-  textInput.addEventListener('input', () => { if (isSpeaking) stop(); });
+  textInput.addEventListener('input', () => {
+    if (isSpeaking) stop();
+    // تشخیص خودکار جهت هنگام تایپ
+    const val = textInput.value.trim();
+    if (val.length > 0) {
+      textInput.dir = detectLanguage(val) === 'fa' ? 'rtl' : 'ltr';
+    }
+  });
 
   (function setupResize() {
     let startY = 0, startHeight = 0, dragging = false;
